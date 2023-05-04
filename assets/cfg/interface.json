@@ -1,81 +1,18 @@
 {
-  "texts": [
-    {
-      "fnt": "assets/fnt/PressStart2P.ttf",
-      "text": "Ejercicio 04 MISO",
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "size": 8,
-      "isStatic": true,
-      "color": {
-        "r": 200,
-        "g": 200,
-        "b": 200
-      }
+    "title_text_color": {
+        "r": 255,
+        "g": 0,
+        "b": 0
     },
-    {
-      "fnt": "assets/fnt/PressStart2P.ttf",
-      "text": "Controles: Flechas (mov), P (pausa), Click izq (disparo), Click der (especial)",
-      "position": {
-        "x": 0,
-        "y": 10
-      },
-      "size": 6,
-      "isStatic": true,
-      "color": {
-        "r": 200,
-        "g": 200,
-        "b": 200
-      }
-    },
-    {
-      "fnt": "assets/fnt/PressStart2P.ttf",
-      "id": "pause",
-      "text": "EN PAUSA",
-      "position": {
-        "x": 0,
-        "y": 20
-      },
-      "size": 6,
-      "isStatic": false,
-      "color": {
+    "normal_text_color": {
         "r": 255,
         "g": 255,
         "b": 255
-      }
     },
-    {
-      "fnt": "assets/fnt/PressStart2P.ttf",
-      "text": "Poder especial:",
-      "position": {
-        "x": 0,
-        "y": 350
-      },
-      "size": 8,
-      "isStatic": true,
-      "color": {
-        "r": 200,
-        "g": 200,
-        "b": 200
-      }
+    "high_score_color": {
+        "r": 30,
+        "g": 144,
+        "b": 255
     },
-    {
-      "fnt": "assets/fnt/PressStart2P.ttf",
-      "id": "power",
-      "text": "",
-      "position": {
-        "x": 130,
-        "y": 350
-      },
-      "size": 8,
-      "isStatic": false,
-      "color": {
-        "r": 200,
-        "g": 200,
-        "b": 200
-      }
-    }
-  ]
+    "high_score_max_value": 1000
 }
