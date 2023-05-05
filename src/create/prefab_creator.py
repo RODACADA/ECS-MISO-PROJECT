@@ -14,7 +14,7 @@ from src.ecs.components.tags.c_tag_player import CTagPlayer
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
 from src.ecs.components.tags.c_tag_explosion import CTagExplosion
 from src.ecs.components.c_animation import CAnimation
-from src.ecs.components.c_player_state import CPlayerState
+from src.ecs.components.c_enemy_state import CEnemyState
 from src.ecs.components.c_enemy_hunter_state import CEnemyHunterState
 from src.ecs.components.tags.c_tag_text import CTagText
 from src.engine.service_locator import ServiceLocator
@@ -45,16 +45,28 @@ def create_sprite(world: esper.World, pos: pygame.Vector2, vel: pygame.Vector2,
 
 
 def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dict):
-    enemy_surface = ServiceLocator.images_service.get(enemy_info["image"])
-    vel_max = enemy_info["velocity_max"]
-    vel_min = enemy_info["velocity_min"]
-    vel_range = random.randrange(vel_min, vel_max)
-    velocity = pygame.Vector2(random.choice([-vel_range, vel_range]),
-                              random.choice([-vel_range, vel_range]))
-    enemy_entity = create_sprite(world, pos, velocity, enemy_surface)
+    enemy_sprite = ServiceLocator.images_service.get(enemy_info["image"])
+    size = enemy_sprite.get_size()
+    if "animations" in enemy_info:
+        size = (size[0] / enemy_info["animations"]["number_frames"], size[1])
+    pos = pygame.Vector2(pos.x - (size[0] / 2),
+                         pos.y - (size[1] / 2))
+    # vel_max = enemy_info["velocity_max"]
+    # vel_min = enemy_info["velocity_min"]
+    # vel_range = random.randrange(vel_min, vel_max)
+    # velocity = pygame.Vector2(random.choice([-vel_range, vel_range]),
+    #                           random.choice([-vel_range, vel_range]))
+
+    # velocity = pygame.Vector2(0, 0)
+    velocity = pygame.Vector2(enemy_info["velocity"], 0)
+
+    enemy_entity = create_sprite(world, pos, velocity, enemy_sprite)
 
     world.add_component(enemy_entity, CTagEnemy("Bouncer"))
-    ServiceLocator.sounds_service.play(enemy_info["sound"])
+    if "animations" in enemy_info:
+        world.add_component(enemy_entity, CAnimation(enemy_info["animations"]))
+    world.add_component(enemy_entity, CEnemyState())
+    # ServiceLocator.sounds_service.play(enemy_info["sound"])
 
 
 def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict) -> int:

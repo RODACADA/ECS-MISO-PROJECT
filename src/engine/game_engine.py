@@ -10,12 +10,12 @@ from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bull
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
 from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_movement import system_movement
+from src.ecs.systems.s_player_state import system_enemy_state
 from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
 
-from src.ecs.systems.s_player_state import system_player_state
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
 
@@ -56,8 +56,8 @@ class GameEngine:
     def _load_config_files(self):
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
             self.window_cfg = json.load(window_file)
-        # with open("assets/cfg/enemies.json") as enemies_file:
-        #     self.enemies_cfg = json.load(enemies_file)
+        with open("assets/cfg/enemies.json") as enemies_file:
+            self.enemies_cfg = json.load(enemies_file)
         with open("assets/cfg/level_01.json") as level_01_file:
             self.level_01_cfg = json.load(level_01_file)
         with open("assets/cfg/player.json") as player_file:
@@ -89,7 +89,7 @@ class GameEngine:
         self._player_c_s = self.ecs_world.component_for_entity(
             self._player_entity, CSurface)
 
-        # create_enemy_spawner(self.ecs_world, self.level_01_cfg)
+        create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         # create_texts(self.ecs_world, self.interface_cfg)
 
@@ -105,11 +105,11 @@ class GameEngine:
 
     def _update(self):
         if not self.is_paused:
-            # system_enemy_spawner(
-            #     self.ecs_world, self.enemies_cfg, self.delta_time)
+            system_enemy_spawner(
+                self.ecs_world, self.enemies_cfg, self.delta_time)
             system_movement(self.ecs_world, self.delta_time)
 
-            # system_screen_bounce(self.ecs_world, self.screen)
+            system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
             # system_screen_bullet(self.ecs_world, self.screen)
 
@@ -119,6 +119,7 @@ class GameEngine:
 
             # system_explosion_kill(self.ecs_world)
 
+            system_enemy_state(self.ecs_world)
             # system_enemy_hunter_state(
             # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
             # system_update_cd_text(self.ecs_world, self._player_entity)

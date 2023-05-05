@@ -5,5 +5,375 @@
       "y": 220
     },
     "max_bullets": 1
-  }
+  },
+  "enemy_spawn_events": [
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 25,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 45,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 65,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 85,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 105,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 125,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 145,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 165,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 185,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 205,
+        "y": 79
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 25,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 45,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 65,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 85,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 105,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 125,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 145,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 165,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 185,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 205,
+        "y": 90
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 25,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 45,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 65,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 85,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 105,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 125,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 145,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 165,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 185,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeA",
+      "position": {
+        "x": 205,
+        "y": 101
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 45,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 65,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 85,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 105,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 125,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 145,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 165,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeB",
+      "position": {
+        "x": 185,
+        "y": 66
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 65,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 85,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 105,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 125,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 145,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeC",
+      "position": {
+        "x": 165,
+        "y": 55
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeD",
+      "position": {
+        "x": 85,
+        "y": 40
+      }
+    },
+    {
+      "time": 0.0,
+      "enemy_type": "TypeD",
+      "position": {
+        "x": 145,
+        "y": 40
+      }
+    }
+  ]
 }
