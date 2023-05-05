@@ -6,11 +6,12 @@ from src.ecs.systems.s_animation import system_animation
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
 from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bullet
+from src.ecs.systems.s_enemies_fly import system_enemies_fly
 
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
 from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_movement import system_movement
-from src.ecs.systems.s_player_state import system_enemy_state
+from src.ecs.systems.s_enemy_state import system_enemy_state
 from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
@@ -52,6 +53,7 @@ class GameEngine:
         self.ecs_world = esper.World()
 
         self.num_bullets = 0
+        self.flying_enemies = [0]
 
     def _load_config_files(self):
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
@@ -88,6 +90,7 @@ class GameEngine:
             self._player_entity, CTransform)
         self._player_c_s = self.ecs_world.component_for_entity(
             self._player_entity, CSurface)
+        self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
@@ -111,6 +114,8 @@ class GameEngine:
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
+            system_enemies_fly(
+                self.ecs_world, self.flying_enemies, self.max_flying_enemies)
             # system_screen_bullet(self.ecs_world, self.screen)
 
             # system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
@@ -119,7 +124,7 @@ class GameEngine:
 
             # system_explosion_kill(self.ecs_world)
 
-            system_enemy_state(self.ecs_world)
+            system_enemy_state(self.ecs_world, self._player_c_t)
             # system_enemy_hunter_state(
             # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
             # system_update_cd_text(self.ecs_world, self._player_entity)

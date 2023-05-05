@@ -62,7 +62,8 @@ def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dic
 
     enemy_entity = create_sprite(world, pos, velocity, enemy_sprite)
 
-    world.add_component(enemy_entity, CTagEnemy("Bouncer"))
+    world.add_component(enemy_entity, CTagEnemy(
+        "Bouncer", enemy_info["vertical_velocity"], enemy_info["chase_velocity"]))
     if "animations" in enemy_info:
         world.add_component(enemy_entity, CAnimation(enemy_info["animations"]))
     world.add_component(enemy_entity, CEnemyState())
@@ -81,14 +82,14 @@ def create_player_square(world: esper.World, player_info: dict, player_lvl_info:
     return player_entity
 
 
-def create_enemy_hunter(world: esper.World, pos: pygame.Vector2, enemy_info: dict):
-    enemy_surface = ServiceLocator.images_service.get(enemy_info["image"])
-    velocity = pygame.Vector2(0, 0)
-    enemy_entity = create_sprite(world, pos, velocity, enemy_surface)
-    world.add_component(enemy_entity, CEnemyHunterState(pos))
-    world.add_component(enemy_entity,
-                        CAnimation(enemy_info["animations"]))
-    world.add_component(enemy_entity, CTagEnemy("Hunter"))
+# def create_enemy_hunter(world: esper.World, pos: pygame.Vector2, enemy_info: dict):
+#     enemy_surface = ServiceLocator.images_service.get(enemy_info["image"])
+#     velocity = pygame.Vector2(0, 0)
+#     enemy_entity = create_sprite(world, pos, velocity, enemy_surface)
+#     world.add_component(enemy_entity, CEnemyHunterState(pos))
+#     world.add_component(enemy_entity,
+#                         CAnimation(enemy_info["animations"]))
+    # world.add_component(enemy_entity, CTagEnemy("Hunter"))
 
 
 def create_enemy_spawner(world: esper.World, level_data: dict):
