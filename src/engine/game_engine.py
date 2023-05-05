@@ -10,12 +10,12 @@ from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bull
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
 from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_movement import system_movement
+from src.ecs.systems.s_player_state import system_enemy_state
 from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
 
-from src.ecs.systems.s_player_state import system_player_state
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
 
@@ -62,10 +62,10 @@ class GameEngine:
             self.level_01_cfg = json.load(level_01_file)
         with open("assets/cfg/player.json") as player_file:
             self.player_cfg = json.load(player_file)
-        with open("assets/cfg/bullet.json") as bullet_file:
-            self.bullet_cfg = json.load(bullet_file)
-        with open("assets/cfg/explosion.json") as explosion_file:
-            self.explosion_cfg = json.load(explosion_file)
+        # with open("assets/cfg/bullet.json") as bullet_file:
+        #     self.bullet_cfg = json.load(bullet_file)
+        # with open("assets/cfg/explosion.json") as explosion_file:
+        #     self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/interface.json") as interface_file:
             self.interface_cfg = json.load(interface_file)
 
@@ -91,7 +91,7 @@ class GameEngine:
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
-        create_texts(self.ecs_world, self.interface_cfg)
+        # create_texts(self.ecs_world, self.interface_cfg)
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
@@ -111,20 +111,20 @@ class GameEngine:
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
-            system_screen_bullet(self.ecs_world, self.screen)
+            # system_screen_bullet(self.ecs_world, self.screen)
 
-            system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
-            system_collision_player_enemy(self.ecs_world, self._player_entity,
-                                          self.level_01_cfg, self.explosion_cfg)
+            # system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
+            # system_collision_player_enemy(self.ecs_world, self._player_entity,
+            #   self.level_01_cfg, self.explosion_cfg)
 
-            system_explosion_kill(self.ecs_world)
+            # system_explosion_kill(self.ecs_world)
 
-            system_player_state(self.ecs_world)
-            system_enemy_hunter_state(
-                self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
-            system_update_cd_text(self.ecs_world, self._player_entity)
+            system_enemy_state(self.ecs_world)
+            # system_enemy_hunter_state(
+            # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
+            # system_update_cd_text(self.ecs_world, self._player_entity)
 
-        system_update_pause_texts(self.ecs_world, self.is_paused)
+        # system_update_pause_texts(self.ecs_world, self.is_paused)
         system_animation(self.ecs_world, self.delta_time)
 
         self.ecs_world._clear_dead_entities()
@@ -150,36 +150,26 @@ class GameEngine:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
-        if c_input.name == "PLAYER_UP":
-            if c_input.phase == CommandPhase.START:
-                self._player_c_v.vel.y -= self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
-                self._player_c_v.vel.y += self.player_cfg["input_velocity"]
-        if c_input.name == "PLAYER_DOWN":
-            if c_input.phase == CommandPhase.START:
-                self._player_c_v.vel.y += self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
-                self._player_c_v.vel.y -= self.player_cfg["input_velocity"]
 
-        if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
-            create_bullet(self.ecs_world, c_input.mouse_pos, self._player_c_t.pos,
-                          self._player_c_s.area.size, self.bullet_cfg)
+        # if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
+        #     create_bullet(self.ecs_world, c_input.mouse_pos, self._player_c_t.pos,
+        #                   self._player_c_s.area.size, self.bullet_cfg)
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
                 self.is_paused = not self.is_paused
 
-        if c_input.name == "SPECIAL_FIRE":
-            ability = self.ecs_world.component_for_entity(
-                self._player_entity, CAbility)
-            ability: CAbility
-            if ability.next_available_time - pygame.time.get_ticks() <= 0:
-                for i in range(int(self._player_c_t.pos.x) - 5, int(self._player_c_t.pos.x) + 5, 2):
-                    for j in range(int(self._player_c_t.pos.y) - 5, int(self._player_c_t.pos.y) + 5, 2):
-                        pos = pygame.Vector2(i, j)
-                        if pos != self._player_c_t.pos:
-                            create_bullet(self.ecs_world, pos, self._player_c_t.pos,
-                                          self._player_c_s.area.size, self.bullet_cfg)
+        # if c_input.name == "SPECIAL_FIRE":
+        #     ability = self.ecs_world.component_for_entity(
+        #         self._player_entity, CAbility)
+        #     ability: CAbility
+        #     if ability.next_available_time - pygame.time.get_ticks() <= 0:
+        #         for i in range(int(self._player_c_t.pos.x) - 5, int(self._player_c_t.pos.x) + 5, 2):
+        #             for j in range(int(self._player_c_t.pos.y) - 5, int(self._player_c_t.pos.y) + 5, 2):
+        #                 pos = pygame.Vector2(i, j)
+        #                 if pos != self._player_c_t.pos:
+        #                     create_bullet(self.ecs_world, pos, self._player_c_t.pos,
+        #                                   self._player_c_s.area.size, self.bullet_cfg)
 
-                ability.next_available_time = pygame.time.get_ticks(
-                ) + self.player_cfg["ability_cooldown_seconds"]*1000
+        #         ability.next_available_time = pygame.time.get_ticks(
+        #         ) + self.player_cfg["ability_cooldown_seconds"]*1000
