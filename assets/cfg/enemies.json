@@ -1,6 +1,8 @@
 {
   "TypeA": {
     "velocity": 8,
+    "vertical_velocity": 50,
+    "chase_velocity": 50,
     "image": "assets/img/invaders_enemy_01.png",
     "animations": {
       "number_frames": 5,
@@ -28,6 +30,8 @@
   },
   "TypeB": {
     "velocity": 8,
+    "vertical_velocity": 50,
+    "chase_velocity": 50,
     "image": "assets/img/invaders_enemy_02.png",
     "animations": {
       "number_frames": 5,
@@ -55,6 +59,8 @@
   },
   "TypeC": {
     "velocity": 8,
+    "vertical_velocity": 50,
+    "chase_velocity": 50,
     "image": "assets/img/invaders_enemy_03.png",
     "animations": {
       "number_frames": 5,
@@ -82,6 +88,8 @@
   },
   "TypeD": {
     "velocity": 8,
+    "vertical_velocity": 50,
+    "chase_velocity": 50,
     "image": "assets/img/invaders_enemy_04.png"
   }
 }
