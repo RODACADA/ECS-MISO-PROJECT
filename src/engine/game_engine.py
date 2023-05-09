@@ -116,7 +116,7 @@ class GameEngine:
             system_screen_player(self.ecs_world, self.screen)
             system_enemies_fly(
                 self.ecs_world, self.flying_enemies, self.max_flying_enemies)
-            # system_screen_bullet(self.ecs_world, self.screen)
+            system_screen_bullet(self.ecs_world, self.screen)
 
             # system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
             # system_collision_player_enemy(self.ecs_world, self._player_entity,
