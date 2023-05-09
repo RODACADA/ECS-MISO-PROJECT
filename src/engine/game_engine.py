@@ -2,6 +2,7 @@ import json
 import pygame
 import esper
 from src.ecs.components.c_ability import CAbility
+from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.systems.s_animation import system_animation
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
@@ -28,6 +29,7 @@ from src.ecs.components.tags.c_tag_bullet import CTagBullet
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 
 from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts
+from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 
@@ -83,7 +85,7 @@ class GameEngine:
 
     def _create(self):
         self._player_entity = create_player_square(
-            self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"])
+            self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
             self._player_entity, CVelocity)
         self._player_c_t = self.ecs_world.component_for_entity(
@@ -91,6 +93,15 @@ class GameEngine:
         self._player_c_s = self.ecs_world.component_for_entity(
             self._player_entity, CSurface)
         self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
+
+        s_bullet_components = self.ecs_world.get_components(
+            CTagBulletStatic, CTransform, CVelocity, CSurface)
+
+        for entity, (c_tag, c_t, c_v, c_s) in s_bullet_components:
+            self._static_bullet_entity = entity,
+            self._sb_transform = c_t
+            self._sb_velocity = c_v
+            self._sb_surface = c_s
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
@@ -111,6 +122,7 @@ class GameEngine:
             system_enemy_spawner(
                 self.ecs_world, self.enemies_cfg, self.delta_time)
             system_movement(self.ecs_world, self.delta_time)
+            system_static_bullet_movement(self.ecs_world)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
@@ -150,6 +162,7 @@ class GameEngine:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
+
         if c_input.name == "PLAYER_RIGHT":
             if c_input.phase == CommandPhase.START:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
@@ -158,7 +171,8 @@ class GameEngine:
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
             create_bullet(self.ecs_world, self._player_c_t.pos,
-                          self._player_c_s.area.size, self.bullet_cfg)
+                          self._player_c_s.area.size, self.bullet_cfg, False)
+            self._sb_surface.show = False
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:

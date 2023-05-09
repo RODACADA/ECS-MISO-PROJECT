@@ -9,6 +9,7 @@ from src.ecs.components.c_power_def import CPowerDef
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
+from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.tags.c_tag_player import CTagPlayer
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
@@ -70,15 +71,17 @@ def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dic
     # ServiceLocator.sounds_service.play(enemy_info["sound"])
 
 
-def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict) -> int:
+def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict, bullet_info: dict) -> int:
     player_surface = ServiceLocator.images_service.get(player_info["image"])
-
     size = player_surface.get_size()
     pos = pygame.Vector2(player_lvl_info["position"]["x"] - (size[0] / 2),
                          player_lvl_info["position"]["y"] - (size[1] / 2))
     vel = pygame.Vector2(0, 0)
     player_entity = create_sprite(world, pos, vel, player_surface)
     world.add_component(player_entity, CTagPlayer())
+
+    create_bullet(world, pos, size, bullet_info, True)
+
     return player_entity
 
 
@@ -116,7 +119,7 @@ def create_input_player(world: esper.World):
 def create_bullet(world: esper.World,
                   player_pos: pygame.Vector2,
                   player_size: pygame.Vector2,
-                  bullet_info: dict):
+                  bullet_info: dict, is_static: bool):
 
     bullet_entity = world.create_entity()
     c_surf = CSurface(pygame.Vector2(bullet_info["width"], bullet_info["height"]), pygame.Color(
@@ -128,9 +131,15 @@ def create_bullet(world: esper.World,
                         c_surf)
     world.add_component(bullet_entity,
                         c_transf)
-    world.add_component(bullet_entity,
-                        CVelocity(pygame.Vector2(0, -bullet_info["velocity"])))
-    world.add_component(bullet_entity, CTagBullet())
+
+    if not is_static:
+        world.add_component(bullet_entity, CTagBullet())
+        world.add_component(bullet_entity,
+                            CVelocity(pygame.Vector2(0, -bullet_info["velocity"])))
+    else:
+        world.add_component(bullet_entity, CTagBulletStatic())
+        world.add_component(bullet_entity,
+                            CVelocity(pygame.Vector2(0, 0)))
 
 
 def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: dict):
