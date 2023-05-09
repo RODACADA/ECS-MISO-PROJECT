@@ -64,8 +64,8 @@ class GameEngine:
             self.level_01_cfg = json.load(level_01_file)
         with open("assets/cfg/player.json") as player_file:
             self.player_cfg = json.load(player_file)
-        # with open("assets/cfg/bullet.json") as bullet_file:
-        #     self.bullet_cfg = json.load(bullet_file)
+        with open("assets/cfg/bullet.json") as bullet_file:
+            self.bullet_cfg = json.load(bullet_file)
         # with open("assets/cfg/explosion.json") as explosion_file:
         #     self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/interface.json") as interface_file:
@@ -156,9 +156,9 @@ class GameEngine:
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
-        # if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
-        #     create_bullet(self.ecs_world, c_input.mouse_pos, self._player_c_t.pos,
-        #                   self._player_c_s.area.size, self.bullet_cfg)
+        if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
+            create_bullet(self.ecs_world, self._player_c_t.pos,
+                          self._player_c_s.area.size, self.bullet_cfg)
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:

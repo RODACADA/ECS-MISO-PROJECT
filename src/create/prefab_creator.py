@@ -109,26 +109,27 @@ def create_input_player(world: esper.World):
     world.add_component(input_right,
                         CInputCommand("PLAYER_RIGHT", pygame.K_RIGHT))
     world.add_component(input_fire,
-                        CInputCommand("PLAYER_FIRE", pygame.BUTTON_LEFT))
+                        CInputCommand("PLAYER_FIRE", pygame.K_z))
     world.add_component(input_pause, CInputCommand("PAUSE", pygame.K_p))
 
 
 def create_bullet(world: esper.World,
-                  mouse_pos: pygame.Vector2,
                   player_pos: pygame.Vector2,
                   player_size: pygame.Vector2,
                   bullet_info: dict):
 
-    bullet_surface = ServiceLocator.images_service.get(bullet_info["image"])
+    bullet_entity = world.create_entity()
+    c_surf = CSurface(pygame.Vector2(bullet_info["width"], bullet_info["height"]), pygame.Color(
+        bullet_info["color"]["r"], bullet_info["color"]["g"], bullet_info["color"]["b"]))
+    c_transf = CTransform(pygame.Vector2(
+        player_pos.x + player_size[0]//2, player_pos.y))
 
-    bullet_size = bullet_surface.get_rect().size
-    pos = pygame.Vector2(player_pos.x + (player_size[0] / 2) - (bullet_size[0] / 2),
-                         player_pos.y + (player_size[1] / 2) - (bullet_size[1] / 2))
-    vel = (mouse_pos - player_pos)
-    vel = vel.normalize() * bullet_info["velocity"]
-    ServiceLocator.sounds_service.play(bullet_info["sound"])
-
-    bullet_entity = create_sprite(world, pos, vel, bullet_surface)
+    world.add_component(bullet_entity,
+                        c_surf)
+    world.add_component(bullet_entity,
+                        c_transf)
+    world.add_component(bullet_entity,
+                        CVelocity(pygame.Vector2(0, -bullet_info["velocity"])))
     world.add_component(bullet_entity, CTagBullet())
 
 
