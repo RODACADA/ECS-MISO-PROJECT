@@ -2,6 +2,7 @@ import json
 import pygame
 import esper
 from src.ecs.components.c_ability import CAbility
+from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.systems.s_animation import system_animation
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
@@ -16,6 +17,7 @@ from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
+from src.ecs.systems.s_background import system_background
 
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
@@ -27,7 +29,9 @@ from src.ecs.components.tags.c_tag_bullet import CTagBullet
 
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts
+
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts, create_background
+from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 
@@ -64,12 +68,14 @@ class GameEngine:
             self.level_01_cfg = json.load(level_01_file)
         with open("assets/cfg/player.json") as player_file:
             self.player_cfg = json.load(player_file)
-        # with open("assets/cfg/bullet.json") as bullet_file:
-        #     self.bullet_cfg = json.load(bullet_file)
+        with open("assets/cfg/bullet.json") as bullet_file:
+            self.bullet_cfg = json.load(bullet_file)
         # with open("assets/cfg/explosion.json") as explosion_file:
         #     self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/interface.json") as interface_file:
             self.interface_cfg = json.load(interface_file)
+        with open("assets/cfg/background.json") as bg_file:
+            self.bg_cfg = json.load(bg_file)
 
     def run(self) -> None:
         self._create()
@@ -83,7 +89,7 @@ class GameEngine:
 
     def _create(self):
         self._player_entity = create_player_square(
-            self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"])
+            self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
             self._player_entity, CVelocity)
         self._player_c_t = self.ecs_world.component_for_entity(
@@ -92,8 +98,18 @@ class GameEngine:
             self._player_entity, CSurface)
         self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
 
+        s_bullet_components = self.ecs_world.get_components(
+            CTagBulletStatic, CTransform, CVelocity, CSurface)
+
+        for entity, (c_tag, c_t, c_v, c_s) in s_bullet_components:
+            self._static_bullet_entity = entity,
+            self._sb_transform = c_t
+            self._sb_velocity = c_v
+            self._sb_surface = c_s
+
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
+        create_background(self.ecs_world, self.bg_cfg, self.screen)
         # create_texts(self.ecs_world, self.interface_cfg)
 
     def _calculate_time(self):
@@ -111,12 +127,13 @@ class GameEngine:
             system_enemy_spawner(
                 self.ecs_world, self.enemies_cfg, self.delta_time)
             system_movement(self.ecs_world, self.delta_time)
+            system_static_bullet_movement(self.ecs_world)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
             system_enemies_fly(
                 self.ecs_world, self.flying_enemies, self.max_flying_enemies)
-            # system_screen_bullet(self.ecs_world, self.screen)
+            system_screen_bullet(self.ecs_world, self.screen)
 
             # system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
             # system_collision_player_enemy(self.ecs_world, self._player_entity,
@@ -137,6 +154,7 @@ class GameEngine:
 
     def _draw(self):
         self.screen.fill(self.bg_color)
+        system_background(self.ecs_world, self.delta_time, self.screen)
         system_rendering(self.ecs_world, self.screen)
         pygame.display.flip()
 
@@ -150,15 +168,17 @@ class GameEngine:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
+
         if c_input.name == "PLAYER_RIGHT":
             if c_input.phase == CommandPhase.START:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
-        # if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
-        #     create_bullet(self.ecs_world, c_input.mouse_pos, self._player_c_t.pos,
-        #                   self._player_c_s.area.size, self.bullet_cfg)
+        if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
+            create_bullet(self.ecs_world, self._player_c_t.pos,
+                          self._player_c_s.area.size, self.bullet_cfg, False)
+            self._sb_surface.show = False
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:

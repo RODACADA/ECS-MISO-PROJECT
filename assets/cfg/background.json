@@ -1,0 +1,13 @@
+{
+    "min_spawn_time": 0.2,
+    "max_spawn_time": 1,
+    "min_blink_time": 0.5,
+    "max_blink_time": 1,
+    "min_velocity": 10,
+    "max_velocity": 25,
+    "colors": [
+        {"r":255, "g": 0,   "b": 0  },
+        {"r":0,   "g": 255, "b": 0  },
+        {"r":0  , "g": 0,   "b": 255}
+    ]
+}
