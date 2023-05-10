@@ -17,6 +17,8 @@ from src.ecs.components.tags.c_tag_explosion import CTagExplosion
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_enemy_state import CEnemyState
 from src.ecs.components.c_enemy_hunter_state import CEnemyHunterState
+from src.ecs.components.c_bg_star_spawner import CBgStarSpawner
+from src.ecs.components.c_bg_start import CBGStar
 from src.ecs.components.tags.c_tag_text import CTagText
 from src.engine.service_locator import ServiceLocator
 
@@ -178,3 +180,29 @@ def create_texts(world: esper.World, text_def: dict):
         if type == "power":
             world.add_component(text_entity, CPowerDef(
                 pos, text_item["size"], color, text_item["fnt"]))
+
+
+def create_star(world: esper.World, spawner: CBgStarSpawner, screen: pygame.Surface, y=0):
+    start_entity = world.create_entity()
+    color = random.choice(spawner.colors)
+    velocity = random.randrange(spawner.min_vel, spawner.max_vel+1)
+    position = pygame.Vector2(random.randrange(0, screen.get_width()+1), y)
+    blink_time = random.randrange(
+        spawner.min_blink_time*100//1, spawner.max_blink_time*100//1 + 1)/100
+
+    star_comp = CBGStar(color, velocity, position, blink_time)
+
+    world.add_component(start_entity, star_comp)
+
+
+def create_background(world: esper.World, bg_cfg: dict, screen: pygame.Surface):
+    bg_entity = world.create_entity()
+    spawner = CBgStarSpawner(bg_cfg)
+    world.add_component(bg_entity, spawner)
+
+    initial_count = int(screen.get_height() * 4 / (spawner.max_vel +
+                        spawner.min_vel) / (spawner.min_spawn_time + spawner.max_spawn_time))
+
+    for i in range(initial_count):
+        y = random.randint(0, screen.get_height())
+        create_star(world, spawner, screen, y)

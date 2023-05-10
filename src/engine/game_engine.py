@@ -17,6 +17,7 @@ from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
+from src.ecs.systems.s_background import system_background
 
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
@@ -28,7 +29,8 @@ from src.ecs.components.tags.c_tag_bullet import CTagBullet
 
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts
+
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts, create_background
 from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
@@ -72,6 +74,8 @@ class GameEngine:
         #     self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/interface.json") as interface_file:
             self.interface_cfg = json.load(interface_file)
+        with open("assets/cfg/background.json") as bg_file:
+            self.bg_cfg = json.load(bg_file)
 
     def run(self) -> None:
         self._create()
@@ -105,6 +109,7 @@ class GameEngine:
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
+        create_background(self.ecs_world, self.bg_cfg, self.screen)
         # create_texts(self.ecs_world, self.interface_cfg)
 
     def _calculate_time(self):
@@ -149,6 +154,7 @@ class GameEngine:
 
     def _draw(self):
         self.screen.fill(self.bg_color)
+        system_background(self.ecs_world, self.delta_time, self.screen)
         system_rendering(self.ecs_world, self.screen)
         pygame.display.flip()
 
