@@ -4,6 +4,7 @@ import esper
 from src.ecs.components.c_ability import CAbility
 from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.systems.s_animation import system_animation
+from src.ecs.systems.s_collision_player_bullet import system_collision_player_bullet
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
 from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bullet
@@ -59,6 +60,7 @@ class GameEngine:
 
         self.num_bullets = 0
         self.flying_enemies = [0]
+        self.is_player_dead = [False]
 
     def _load_config_files(self):
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
@@ -81,6 +83,8 @@ class GameEngine:
             self.enemy_bullet_cfg = json.load(enemy_bullet_file)
         with open("assets/cfg/enemy_explosion.json") as enemy_explosion_file:
             self.enemy_explosion_cfg = json.load(enemy_explosion_file)
+        with open("assets/cfg/player_explosion.json") as player_explosion_file:
+            self.player_explosion_cfg = json.load(player_explosion_file)
 
     def run(self) -> None:
         self._create()
@@ -144,6 +148,8 @@ class GameEngine:
 
             system_collision_enemy_bullet(
                 self.ecs_world, self.enemy_explosion_cfg)
+            system_collision_player_bullet(
+                self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
             # system_collision_player_enemy(self.ecs_world, self._player_entity,
             #   self.level_01_cfg, self.explosion_cfg)
 
@@ -183,7 +189,7 @@ class GameEngine:
             elif c_input.phase == CommandPhase.END:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
-        if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"]:
+        if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"] and not self.is_player_dead[0]:
             create_bullet(self.ecs_world, self._player_c_t.pos,
                           self._player_c_s.area.size, self.bullet_cfg, False)
             self._sb_surface.show = False
