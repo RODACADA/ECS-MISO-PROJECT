@@ -30,6 +30,6 @@ def system_enemies_bullets(world: esper.World, lvl_config: dict, enemy_bullet_cf
 
         if should_fire and c_s.state == EnemyState.FLYING_ATTACK:
             y_diff = p_t.pos.y - c_t.pos.y
-            if y_diff > 10:
+            if y_diff > 60:
                 create_bullet_enemy_directed(
                     world, c_t.pos, c_surf.area.size, enemy_bullet_cfg, p_t.pos)
