@@ -9,6 +9,7 @@ from src.ecs.components.c_power_def import CPowerDef
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
+from src.ecs.components.tags.c_tag_bullet_enemy import CTagBulletEnemy
 from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.tags.c_tag_player import CTagPlayer
@@ -142,6 +143,26 @@ def create_bullet(world: esper.World,
         world.add_component(bullet_entity, CTagBulletStatic())
         world.add_component(bullet_entity,
                             CVelocity(pygame.Vector2(0, 0)))
+
+
+def create_bullet_enemy(world: esper.World,
+                        enemy_pos: pygame.Vector2,
+                        enemy_size: pygame.Vector2,
+                        bullet_info: dict):
+
+    bullet_entity = world.create_entity()
+    c_surf = CSurface(pygame.Vector2(bullet_info["width"], bullet_info["height"]), pygame.Color(
+        bullet_info["color"]["r"], bullet_info["color"]["g"], bullet_info["color"]["b"]))
+    c_transf = CTransform(pygame.Vector2(
+        enemy_pos.x + enemy_size[0]//2, enemy_pos.y))
+
+    world.add_component(bullet_entity,
+                        c_surf)
+    world.add_component(bullet_entity,
+                        c_transf)
+    world.add_component(bullet_entity, CTagBulletEnemy())
+    world.add_component(bullet_entity,
+                        CVelocity(pygame.Vector2(0, bullet_info["velocity"])))
 
 
 def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: dict):

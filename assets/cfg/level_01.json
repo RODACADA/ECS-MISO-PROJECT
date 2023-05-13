@@ -7,6 +7,8 @@
     "max_bullets": 1
   },
   "max_flying_enemies": 1,
+  "enemies_fire_prob_move": 0.0005,
+  "enemies_fire_prob_attacking": 0.0005,
   "enemy_spawn_events": [
     {
       "time": 0.0,

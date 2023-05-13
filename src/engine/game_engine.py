@@ -7,6 +7,7 @@ from src.ecs.systems.s_animation import system_animation
 
 from src.ecs.systems.s_collision_player_enemy import system_collision_player_enemy
 from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bullet
+from src.ecs.systems.s_enemies_bullets import system_enemies_bullets
 from src.ecs.systems.s_enemies_fly import system_enemies_fly
 
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
@@ -76,6 +77,8 @@ class GameEngine:
             self.interface_cfg = json.load(interface_file)
         with open("assets/cfg/background.json") as bg_file:
             self.bg_cfg = json.load(bg_file)
+        with open("assets/cfg/enemy_bullet.json") as enemy_bullet_file:
+            self.enemy_bullet_cfg = json.load(enemy_bullet_file)
 
     def run(self) -> None:
         self._create()
@@ -128,6 +131,8 @@ class GameEngine:
                 self.ecs_world, self.enemies_cfg, self.delta_time)
             system_movement(self.ecs_world, self.delta_time)
             system_static_bullet_movement(self.ecs_world)
+            system_enemies_bullets(
+                self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
