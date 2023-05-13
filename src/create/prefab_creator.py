@@ -154,7 +154,7 @@ def create_bullet_enemy(world: esper.World,
     c_surf = CSurface(pygame.Vector2(bullet_info["width"], bullet_info["height"]), pygame.Color(
         bullet_info["color"]["r"], bullet_info["color"]["g"], bullet_info["color"]["b"]))
     c_transf = CTransform(pygame.Vector2(
-        enemy_pos.x + enemy_size[0]//2, enemy_pos.y))
+        enemy_pos.x + enemy_size[0]//2, enemy_pos.y + enemy_size[1]//2))
 
     world.add_component(bullet_entity,
                         c_surf)
@@ -163,6 +163,30 @@ def create_bullet_enemy(world: esper.World,
     world.add_component(bullet_entity, CTagBulletEnemy())
     world.add_component(bullet_entity,
                         CVelocity(pygame.Vector2(0, bullet_info["velocity"])))
+
+
+def create_bullet_enemy_directed(world: esper.World,
+                                 enemy_pos: pygame.Vector2,
+                                 enemy_size: pygame.Vector2,
+                                 bullet_info: dict,
+                                 player_pos: pygame.Vector2):
+
+    bullet_entity = world.create_entity()
+    c_surf = CSurface(pygame.Vector2(bullet_info["width"], bullet_info["height"]), pygame.Color(
+        bullet_info["color"]["r"], bullet_info["color"]["g"], bullet_info["color"]["b"]))
+    c_transf = CTransform(pygame.Vector2(
+        enemy_pos.x + enemy_size[0]//2, enemy_pos.y + enemy_size[1]))
+
+    dist_diff = (player_pos - enemy_pos)
+    vel = dist_diff.normalize() * bullet_info["velocity"]
+
+    world.add_component(bullet_entity,
+                        c_surf)
+    world.add_component(bullet_entity,
+                        c_transf)
+    world.add_component(bullet_entity, CTagBulletEnemy())
+    world.add_component(bullet_entity,
+                        CVelocity(vel))
 
 
 def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: dict):

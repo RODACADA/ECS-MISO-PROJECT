@@ -132,7 +132,7 @@ class GameEngine:
             system_movement(self.ecs_world, self.delta_time)
             system_static_bullet_movement(self.ecs_world)
             system_enemies_bullets(
-                self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg)
+                self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
