@@ -79,6 +79,8 @@ class GameEngine:
             self.bg_cfg = json.load(bg_file)
         with open("assets/cfg/enemy_bullet.json") as enemy_bullet_file:
             self.enemy_bullet_cfg = json.load(enemy_bullet_file)
+        with open("assets/cfg/enemy_explosion.json") as enemy_explosion_file:
+            self.enemy_explosion_cfg = json.load(enemy_explosion_file)
 
     def run(self) -> None:
         self._create()
@@ -140,11 +142,12 @@ class GameEngine:
                 self.ecs_world, self.flying_enemies, self.max_flying_enemies)
             system_screen_bullet(self.ecs_world, self.screen)
 
-            # system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
+            system_collision_enemy_bullet(
+                self.ecs_world, self.enemy_explosion_cfg)
             # system_collision_player_enemy(self.ecs_world, self._player_entity,
             #   self.level_01_cfg, self.explosion_cfg)
 
-            # system_explosion_kill(self.ecs_world)
+            system_explosion_kill(self.ecs_world)
 
             system_enemy_state(self.ecs_world, self._player_c_t)
             # system_enemy_hunter_state(
