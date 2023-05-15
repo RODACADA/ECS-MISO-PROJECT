@@ -12,7 +12,7 @@ from src.engine.service_locator import ServiceLocator
 def system_enemy_state(world: esper.World, player_position: CTransform, enemy_cfg: dict):
     components = world.get_components(
         CEnemyState, CAnimation, CVelocity, CTagEnemy, CTransform)
-    for _, (c_st, c_a, c_v, c_tag, c_t) in components:
+    for id, (c_st, c_a, c_v, c_tag, c_t) in components:
         if c_st.state == EnemyState.MOVE:
             _do_enemy_move(c_st, c_a, c_tag, enemy_cfg)
         elif c_st.state == EnemyState.FLYING_ATTACK:
@@ -36,6 +36,7 @@ def _do_enemy_flying_attack(c_st: CEnemyState, c_a: CAnimation, c_v: CVelocity, 
         ((p_t.pos - c_t.pos).normalize()*c_tag.chase_velocity).x, c_tag.vertical_velocity)
 
     if c_v.vel.magnitude_squared() > 0:
+        return
         c_st.state = EnemyState.FLYING_RETURN
 
 
