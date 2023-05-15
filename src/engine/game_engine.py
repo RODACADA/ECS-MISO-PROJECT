@@ -160,8 +160,9 @@ class GameEngine:
                     self.ecs_world, self.enemy_explosion_cfg)
                 system_collision_player_bullet(
                     self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
-            # system_collision_player_enemy(self.ecs_world, self._player_entity,
-            #   self.level_01_cfg, self.explosion_cfg)
+
+                system_collision_player_enemy(self.ecs_world, self._player_entity,
+                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead)
 
             system_explosion_kill(self.ecs_world)
 
