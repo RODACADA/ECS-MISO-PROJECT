@@ -21,7 +21,7 @@ def system_collision_player_bullet(world: esper.World, explosion_info: dict, is_
             bull_rect = c_b_s.area.copy()
             bull_rect.topleft = c_b_t.pos
             if player_rect.colliderect(bull_rect):
-                world.delete_entity(player_entity)
+                c_s.show = False
                 world.delete_entity(bullet_entity)
                 create_explosion(world, c_t.pos, explosion_info)
                 is_player_dead[0] = True
