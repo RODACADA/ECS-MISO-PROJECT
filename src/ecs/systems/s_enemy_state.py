@@ -6,14 +6,15 @@ from src.ecs.components.c_enemy_state import CEnemyState, EnemyState
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
+from src.engine.service_locator import ServiceLocator
 
 
-def system_enemy_state(world: esper.World, player_position: CTransform):
+def system_enemy_state(world: esper.World, player_position: CTransform, enemy_cfg: dict):
     components = world.get_components(
         CEnemyState, CAnimation, CVelocity, CTagEnemy, CTransform)
-    for _, (c_st, c_a, c_v, c_tag, c_t) in components:
+    for id, (c_st, c_a, c_v, c_tag, c_t) in components:
         if c_st.state == EnemyState.MOVE:
-            _do_enemy_move(c_st, c_a, c_tag)
+            _do_enemy_move(c_st, c_a, c_tag, enemy_cfg)
         elif c_st.state == EnemyState.FLYING_ATTACK:
             _do_enemy_flying_attack(
                 c_st, c_a, c_v, player_position, c_t, c_tag)
@@ -21,10 +22,11 @@ def system_enemy_state(world: esper.World, player_position: CTransform):
             _do_enemy_flying_return(c_st, c_a, c_v)
 
 
-def _do_enemy_move(c_st: CEnemyState, c_a: CAnimation, c_tag: CTagEnemy):
+def _do_enemy_move(c_st: CEnemyState, c_a: CAnimation, c_tag: CTagEnemy, enemy_cfg: dict):
     set_animation(c_a, "MOVE")
     if c_tag.is_flying:
         c_st.state = EnemyState.FLYING_ATTACK
+        ServiceLocator.sounds_service.play(enemy_cfg["attack_sound"])
 
 
 def _do_enemy_flying_attack(c_st: CEnemyState, c_a: CAnimation, c_v: CVelocity, p_t: CTransform, c_t: CTransform, c_tag: CTagEnemy):
@@ -34,6 +36,7 @@ def _do_enemy_flying_attack(c_st: CEnemyState, c_a: CAnimation, c_v: CVelocity, 
         ((p_t.pos - c_t.pos).normalize()*c_tag.chase_velocity).x, c_tag.vertical_velocity)
 
     if c_v.vel.magnitude_squared() > 0:
+        return
         c_st.state = EnemyState.FLYING_RETURN
 
 

@@ -36,6 +36,7 @@ from src.create.prefab_creator import create_enemy_spawner, create_input_player,
 from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
+from src.engine.service_locator import ServiceLocator
 
 
 class GameEngine:
@@ -85,6 +86,8 @@ class GameEngine:
             self.enemy_explosion_cfg = json.load(enemy_explosion_file)
         with open("assets/cfg/player_explosion.json") as player_explosion_file:
             self.player_explosion_cfg = json.load(player_explosion_file)
+        with open("assets/cfg/enemies_sounds.json") as enemies_sounds_file:
+            self.enemies_sounds_cfg = json.load(enemies_sounds_file)
 
     def run(self) -> None:
         self._create()
@@ -105,7 +108,6 @@ class GameEngine:
             self._player_entity, CTransform)
         self._player_c_s = self.ecs_world.component_for_entity(
             self._player_entity, CSurface)
-        self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
 
         s_bullet_components = self.ecs_world.get_components(
             CTagBulletStatic, CTransform, CVelocity, CSurface)
@@ -115,6 +117,8 @@ class GameEngine:
             self._sb_transform = c_t
             self._sb_velocity = c_v
             self._sb_surface = c_s
+
+        self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
@@ -133,29 +137,36 @@ class GameEngine:
 
     def _update(self):
         if not self.is_paused:
+            if self.is_player_dead[0]:
+                self.respawn_player()
+
+            system_movement(self.ecs_world, self.delta_time)
             system_enemy_spawner(
                 self.ecs_world, self.enemies_cfg, self.delta_time)
-            system_movement(self.ecs_world, self.delta_time)
             system_static_bullet_movement(self.ecs_world)
-            system_enemies_bullets(
-                self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
+
+            if not self.is_player_dead[0]:
+                system_enemies_bullets(
+                    self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
+                system_enemies_fly(
+                    self.ecs_world, self.flying_enemies, self.max_flying_enemies)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
-            system_enemies_fly(
-                self.ecs_world, self.flying_enemies, self.max_flying_enemies)
             system_screen_bullet(self.ecs_world, self.screen)
 
-            system_collision_enemy_bullet(
-                self.ecs_world, self.enemy_explosion_cfg)
-            system_collision_player_bullet(
-                self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
+            if not self.is_player_dead[0]:
+                system_collision_enemy_bullet(
+                    self.ecs_world, self.enemy_explosion_cfg)
+                system_collision_player_bullet(
+                    self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
             # system_collision_player_enemy(self.ecs_world, self._player_entity,
             #   self.level_01_cfg, self.explosion_cfg)
 
             system_explosion_kill(self.ecs_world)
 
-            system_enemy_state(self.ecs_world, self._player_c_t)
+            system_enemy_state(
+                self.ecs_world, self._player_c_t, self.enemies_sounds_cfg)
             # system_enemy_hunter_state(
             # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
             # system_update_cd_text(self.ecs_world, self._player_entity)
@@ -190,6 +201,7 @@ class GameEngine:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"] and not self.is_player_dead[0]:
+            ServiceLocator.sounds_service.play(self.player_cfg["fire_sound"])
             create_bullet(self.ecs_world, self._player_c_t.pos,
                           self._player_c_s.area.size, self.bullet_cfg, False)
             self._sb_surface.show = False
@@ -212,3 +224,12 @@ class GameEngine:
 
         #         ability.next_available_time = pygame.time.get_ticks(
         #         ) + self.player_cfg["ability_cooldown_seconds"]*1000
+
+    def respawn_player(self):
+        self.is_player_dead[0] = False
+        self._player_c_s.show = True
+        self._sb_surface.show = True
+        size = self._player_c_s.surf.get_size()
+        pos = pygame.Vector2(self.level_01_cfg["player_spawn"]["position"]["x"] - (size[0] / 2),
+                             self.level_01_cfg["player_spawn"]["position"]["y"] - (size[1] / 2))
+        self._player_c_t.pos = pos
