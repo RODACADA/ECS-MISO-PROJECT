@@ -1,5 +1,6 @@
 {
   "image": "assets/img/invaders_char.png",
   "input_velocity": 100,
-  "ability_cooldown_seconds": 3
+  "ability_cooldown_seconds": 3,
+  "fire_sound": "assets/snd/player_shoot.ogg"
 }

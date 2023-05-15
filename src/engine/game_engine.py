@@ -36,6 +36,7 @@ from src.create.prefab_creator import create_enemy_spawner, create_input_player,
 from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
+from src.engine.service_locator import ServiceLocator
 
 
 class GameEngine:
@@ -200,6 +201,7 @@ class GameEngine:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"] and not self.is_player_dead[0]:
+            ServiceLocator.sounds_service.play(self.player_cfg["fire_sound"])
             create_bullet(self.ecs_world, self._player_c_t.pos,
                           self._player_c_s.area.size, self.bullet_cfg, False)
             self._sb_surface.show = False
