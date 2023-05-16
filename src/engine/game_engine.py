@@ -37,6 +37,8 @@ from src.ecs.systems.s_static_bullet_movement import system_static_bullet_moveme
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 from src.engine.service_locator import ServiceLocator
+from src.engine.scenes.scene import Scene
+from src.game.menu_scene import MenuScene
 
 
 class GameEngine:
@@ -49,19 +51,27 @@ class GameEngine:
             (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
             pygame.SCALED)
 
-        self.clock = pygame.time.Clock()
+        self._clock = pygame.time.Clock()
         self.is_running = False
         self.is_paused = False
-        self.framerate = self.window_cfg["framerate"]
-        self.delta_time = 0
-        self.bg_color = pygame.Color(self.window_cfg["bg_color"]["r"],
+        self._framerate = self.window_cfg["framerate"]
+        self._delta_time = 0
+        self._bg_color = pygame.Color(self.window_cfg["bg_color"]["r"],
                                      self.window_cfg["bg_color"]["g"],
                                      self.window_cfg["bg_color"]["b"])
-        self.ecs_world = esper.World()
+        #self.ecs_world = esper.World()
 
         self.num_bullets = 0
         self.flying_enemies = [0]
         self.is_player_dead = [False]
+        
+        self._scenes:dict[str, Scene] = {}
+        self._scenes["MENU_SCENE"] = MenuScene(self)
+        #self._scenes["LEVEL_01"] = PlayScene("assets/cfg/level_01.json", self)
+        #self._scenes["WIN_SCENE"] = WinScene(self)
+        #self._scenes["GAME_OVER_SCENE"] = GameOverScene(self)
+        self._current_scene:Scene = None
+        self._scene_name_to_switch:str = None
 
     def _load_config_files(self):
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
@@ -89,17 +99,27 @@ class GameEngine:
         with open("assets/cfg/enemies_sounds.json") as enemies_sounds_file:
             self.enemies_sounds_cfg = json.load(enemies_sounds_file)
 
-    def run(self) -> None:
-        self._create()
+    def run(self, start_scene_name:str) -> None:
+        #self._create()
         self.is_running = True
+        self._current_scene = self._scenes[start_scene_name]
+        self._create()
         while self.is_running:
             self._calculate_time()
             self._process_events()
             self._update()
             self._draw()
-        self._clean()
+            self._handle_switch_scene()
+        self._do_clean()
+        
+    def switch_scene(self, new_scene_name:str):
+        self._scene_name_to_switch = new_scene_name
 
     def _create(self):
+        self._current_scene.do_create()
+
+    """ def _create(self):
+        self._current_scene.do_create()
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
@@ -123,20 +143,22 @@ class GameEngine:
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
-        # create_texts(self.ecs_world, self.interface_cfg)
+        # create_texts(self.ecs_world, self.interface_cfg) """
 
     def _calculate_time(self):
-        self.clock.tick(self.framerate)
-        self.delta_time = self.clock.get_time() / 1000.0
+        self._clock.tick(self._framerate)
+        self._delta_time = self._clock.get_time() / 1000.0
 
     def _process_events(self):
         for event in pygame.event.get():
-            system_input_player(self.ecs_world, event, self._do_action)
+            #system_input_player(self.ecs_world, event, self._do_action)
+            self._current_scene.do_process_events(event)
             if event.type == pygame.QUIT:
                 self.is_running = False
 
     def _update(self):
-        if not self.is_paused:
+        self._current_scene.simulate(self._delta_time)
+        """ if not self.is_paused:
             if self.is_player_dead[0]:
                 self.respawn_player()
 
@@ -175,20 +197,34 @@ class GameEngine:
         system_animation(self.ecs_world, self.delta_time)
 
         self.ecs_world._clear_dead_entities()
-        self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
+        self.num_bullets = len(self.ecs_world.get_component(CTagBullet)) """
 
     def _draw(self):
-        self.screen.fill(self.bg_color)
-        system_background(self.ecs_world, self.delta_time, self.screen)
-        system_rendering(self.ecs_world, self.screen)
+        self.screen.fill(self._bg_color)
+        #system_background(self.ecs_world, self._delta_time, self.screen)
+        #system_rendering(self.ecs_world, self.screen)
+        self._current_scene.do_draw(self.screen)
         pygame.display.flip()
+        
+    def _handle_switch_scene(self):
+        if self._scene_name_to_switch is not None:
+            self._current_scene.clean()
+            self._current_scene = self._scenes[self._scene_name_to_switch]
+            self._current_scene.do_create()
+            self._scene_name_to_switch = None
 
-    def _clean(self):
+    """ def _clean(self):
         self.ecs_world.clear_database()
+        pygame.quit() """
+        
+    def _do_clean(self):
+        if self._current_scene is not None:
+            self._current_scene.clean()
         pygame.quit()
 
-    def _do_action(self, c_input: CInputCommand):
-        if c_input.name == "PLAYER_LEFT":
+    def _do_action(self, action: CInputCommand):
+        self._current_scene.do_action(action)
+        """ if c_input.name == "PLAYER_LEFT":
             if c_input.phase == CommandPhase.START:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
             elif c_input.phase == CommandPhase.END:
@@ -208,7 +244,7 @@ class GameEngine:
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
-                self.is_paused = not self.is_paused
+                self.is_paused = not self.is_paused """
 
         # if c_input.name == "SPECIAL_FIRE":
         #     ability = self.ecs_world.component_for_entity(
