@@ -69,7 +69,6 @@ class GameEngine:
     def _draw(self):
         self.screen.fill(self._bg_color)
         self._current_scene.do_draw(self.screen)
-
         pygame.display.flip()
 
     def _handle_switch_scene(self):
