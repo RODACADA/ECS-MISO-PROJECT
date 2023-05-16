@@ -9,7 +9,6 @@ import random
 
 
 def system_background(world: esper.World, delta_time: float, screen: pygame.Surface):
-
     _, spawner = world.get_component(CBgStarSpawner)[0]
     spawner.elapsed_time += delta_time
 

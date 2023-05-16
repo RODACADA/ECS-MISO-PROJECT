@@ -8,7 +8,7 @@ from src.create.prefab_creator import create_enemy_spawner, create_input_player,
 from src.create.prefab_creator_interface import TextAlignment, create_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
-from src.ecs.components.c_transform import CTransform 
+from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.c_ability import CAbility
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
@@ -37,9 +37,8 @@ from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 import src.engine.game_engine
 
 
-
 class PlayScene(Scene):
-    def __init__(self, level_path:str, engine:'src.engine.game_engine.GameEngine') -> None:
+    def __init__(self, level_path: str, engine: 'src.engine.game_engine.GameEngine') -> None:
         super().__init__(engine)
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
             self.window_cfg = json.load(window_file)
@@ -65,7 +64,7 @@ class PlayScene(Scene):
             self.player_explosion_cfg = json.load(player_explosion_file)
         with open("assets/cfg/enemies_sounds.json") as enemies_sounds_file:
             self.enemies_sounds_cfg = json.load(enemies_sounds_file)
-        
+
         self.screen = pygame.display.set_mode(
             (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
             pygame.SCALED)
@@ -78,10 +77,10 @@ class PlayScene(Scene):
         self.is_player_dead = [False]
 
     def do_create(self):
-        create_text(self.ecs_world, "1UP", 8, 
-                    pygame.Color(50, 255, 50), pygame.Vector2(160, 20), 
+        create_text(self.ecs_world, "1UP", 8,
+                    pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
                     TextAlignment.CENTER)
-        
+
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
@@ -104,10 +103,9 @@ class PlayScene(Scene):
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
-        create_background(self.ecs_world, self.bg_cfg,self.screen)
+        create_background(self.ecs_world, self.bg_cfg, self.screen)
         self.is_paused = False
-        
-    
+
     def do_update(self, delta_time: float):
         if not self.is_paused:
             if self.is_player_dead[0]:
@@ -133,8 +131,8 @@ class PlayScene(Scene):
                     self.ecs_world, self.enemy_explosion_cfg)
                 system_collision_player_bullet(
                     self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
-            # system_collision_player_enemy(self.ecs_world, self._player_entity,
-            #   self.level_01_cfg, self.explosion_cfg)
+                system_collision_player_enemy(self.ecs_world, self._player_entity,
+                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead)
 
             system_explosion_kill(self.ecs_world)
 
@@ -175,7 +173,7 @@ class PlayScene(Scene):
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
                 self.is_paused = not self.is_paused
-                
+
     def respawn_player(self):
         self.is_player_dead[0] = False
         self._player_c_s.show = True
@@ -184,3 +182,6 @@ class PlayScene(Scene):
         pos = pygame.Vector2(self.level_01_cfg["player_spawn"]["position"]["x"] - (size[0] / 2),
                              self.level_01_cfg["player_spawn"]["position"]["y"] - (size[1] / 2))
         self._player_c_t.pos = pos
+
+    # def do_draw(self, screen: pygame.Surface):
+    #     system_background(self.ecs_world, self.delta_time, screen)
