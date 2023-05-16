@@ -11,21 +11,21 @@ from src.game.play_scene import PlayScene
 class GameEngine:
     def __init__(self) -> None:
         with open("assets/cfg/window.json", encoding="utf-8") as window_file:
-            self.window_cfg = json.load(window_file)
+            self._window_cfg = json.load(window_file)
 
         pygame.init()
-        pygame.display.set_caption(self.window_cfg["title"])
+        pygame.display.set_caption(self._window_cfg["title"])
         self.screen = pygame.display.set_mode(
-            (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
+            (self._window_cfg["size"]["w"], self._window_cfg["size"]["h"]),
             pygame.SCALED)
 
         self._clock = pygame.time.Clock()
         self.is_running = False
-        self._framerate = self.window_cfg["framerate"]
+        self._framerate = self._window_cfg["framerate"]
         self._delta_time = 0
-        self._bg_color = pygame.Color(self.window_cfg["bg_color"]["r"],
-                                    self.window_cfg["bg_color"]["g"],
-                                    self.window_cfg["bg_color"]["b"])
+        self._bg_color = pygame.Color(self._window_cfg["bg_color"]["r"],
+                                    self._window_cfg["bg_color"]["g"],
+                                    self._window_cfg["bg_color"]["b"])
         self.is_running = False
         self._scenes:dict[str, Scene] = {}
         self._scenes["MENU_SCENE"] = MenuScene(self)
@@ -80,12 +80,13 @@ class GameEngine:
             self._current_scene.do_create()
             self._scene_name_to_switch = None
 
+    def _do_action(self, action: CInputCommand):
+        self._current_scene.do_action(action)
         
     def _do_clean(self):
         if self._current_scene is not None:
             self._current_scene.clean()
         pygame.quit()
 
-    def _do_action(self, action: CInputCommand):
-        self._current_scene.do_action(action)
+
 

@@ -41,6 +41,8 @@ import src.engine.game_engine
 class PlayScene(Scene):
     def __init__(self, level_path:str, engine:'src.engine.game_engine.GameEngine') -> None:
         super().__init__(engine)
+        with open("assets/cfg/window.json", encoding="utf-8") as window_file:
+            self.window_cfg = json.load(window_file)
         with open("assets/cfg/enemies.json") as enemies_file:
             self.enemies_cfg = json.load(enemies_file)
         with open(level_path) as level_01_file:
@@ -64,8 +66,10 @@ class PlayScene(Scene):
         with open("assets/cfg/enemies_sounds.json") as enemies_sounds_file:
             self.enemies_sounds_cfg = json.load(enemies_sounds_file)
         
-        #self._paddle_ent = -1
-        self.delta_time = 0
+        self.screen = pygame.display.set_mode(
+            (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
+            pygame.SCALED)
+
         self._paused = False
         self.ecs_world = esper.World()
 
@@ -100,7 +104,7 @@ class PlayScene(Scene):
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
-        #create_background(self.ecs_world, self.bg_cfg, self.screen)
+        create_background(self.ecs_world, self.bg_cfg,self.screen)
         self.is_paused = False
         
     
@@ -109,9 +113,9 @@ class PlayScene(Scene):
             if self.is_player_dead[0]:
                 self.respawn_player()
 
-            system_movement(self.ecs_world, self.delta_time)
+            system_movement(self.ecs_world, delta_time)
             system_enemy_spawner(
-                self.ecs_world, self.enemies_cfg, self.delta_time)
+                self.ecs_world, self.enemies_cfg, delta_time)
             system_static_bullet_movement(self.ecs_world)
 
             if not self.is_player_dead[0]:
@@ -120,9 +124,9 @@ class PlayScene(Scene):
                 system_enemies_fly(
                     self.ecs_world, self.flying_enemies, self.max_flying_enemies)
 
-            #system_screen_bounce(self.ecs_world, self.screen)
-            #system_screen_player(self.ecs_world, self.screen)
-            #system_screen_bullet(self.ecs_world, self.screen)
+            system_screen_bounce(self.ecs_world, self.screen)
+            system_screen_player(self.ecs_world, self.screen)
+            system_screen_bullet(self.ecs_world, self.screen)
 
             if not self.is_player_dead[0]:
                 system_collision_enemy_bullet(
@@ -141,13 +145,13 @@ class PlayScene(Scene):
             # system_update_cd_text(self.ecs_world, self._player_entity)
 
         # system_update_pause_texts(self.ecs_world, self.is_paused)
-        system_animation(self.ecs_world, self.delta_time)
+        system_animation(self.ecs_world, delta_time)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
 
-    def do_clean(self):
-        self._paused = False
+    """ def do_clean(self):
+        self._paused = False """
 
     def do_action(self, c_input: CInputCommand):
         if c_input.name == "PLAYER_LEFT":

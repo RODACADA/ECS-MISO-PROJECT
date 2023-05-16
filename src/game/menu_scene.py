@@ -15,8 +15,7 @@ class MenuScene(Scene):
                     pygame.Color(150, 150, 255), pygame.Vector2(128, 167), TextAlignment.CENTER)
         
         start_game_action = self.ecs_world.create_entity()
-        self.ecs_world.add_component(start_game_action,
-                                     CInputCommand("START_GAME", pygame.K_z))
+        self.ecs_world.add_component(start_game_action,CInputCommand("START_GAME", pygame.K_z))
         
     def do_action(self, action: CInputCommand):
         if action.name == "START_GAME":
