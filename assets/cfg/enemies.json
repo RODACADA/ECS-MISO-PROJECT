@@ -90,6 +90,29 @@
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
-    "image": "assets/img/invaders_enemy_04.png"
+    "image": "assets/img/invaders_enemy_04.png",
+    "animations": {
+      "number_frames": 1,
+      "list": [
+        {
+          "name": "MOVE",
+          "start": 0,
+          "end": 0,
+          "framerate": 5
+        },
+        {
+          "name": "FLYING_ATTACK",
+          "start": 0,
+          "end": 0,
+          "framerate": 1
+        },
+        {
+          "name": "FLYING_RETURN",
+          "start": 0,
+          "end": 0,
+          "framerate": 1
+        }
+      ]
+    }
   }
 }
