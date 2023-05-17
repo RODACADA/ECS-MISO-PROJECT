@@ -29,3 +29,14 @@ def create_text(world:esper.World, txt:str, size:int,
     world.add_component(text_entity,
                         CTransform(pos + origin))
     return text_entity
+
+def create_image(world:esper.World, img_path:str, pos:pygame.Vector2):
+    image_entity = world.create_entity()
+
+    # Carga la imagen desde el archivo
+    image_surface = pygame.image.load(img_path)
+
+    world.add_component(image_entity, CSurface.from_surface(image_surface))
+    world.add_component(image_entity, CTransform(pos))
+
+    return image_entity

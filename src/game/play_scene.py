@@ -37,6 +37,7 @@ from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 import src.engine.game_engine
 
 
+
 class PlayScene(Scene):
     def __init__(self, level_path: str, engine: 'src.engine.game_engine.GameEngine') -> None:
         super().__init__(engine)
@@ -145,6 +146,7 @@ class PlayScene(Scene):
         # system_update_pause_texts(self.ecs_world, self.is_paused)
         system_animation(self.ecs_world, delta_time)
 
+        system_background(self.ecs_world, delta_time, self.screen)
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
 
@@ -183,5 +185,5 @@ class PlayScene(Scene):
                              self.level_01_cfg["player_spawn"]["position"]["y"] - (size[1] / 2))
         self._player_c_t.pos = pos
 
-    # def do_draw(self, screen: pygame.Surface):
-    #     system_background(self.ecs_world, self.delta_time, screen)
+    #def do_draw(self, screen: pygame.Surface):
+    #    system_background(self.ecs_world, self.delta_time, screen)
