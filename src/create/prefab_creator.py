@@ -21,6 +21,7 @@ from src.ecs.components.c_enemy_hunter_state import CEnemyHunterState
 from src.ecs.components.c_bg_star_spawner import CBgStarSpawner
 from src.ecs.components.c_bg_start import CBGStar
 from src.ecs.components.tags.c_tag_text import CTagText
+from src.ecs.components.c_fliying_enemies import CFlyingEnemies
 from src.engine.service_locator import ServiceLocator
 
 
@@ -251,3 +252,9 @@ def create_background(world: esper.World, bg_cfg: dict, screen: pygame.Surface):
     for i in range(initial_count):
         y = random.randint(0, screen.get_height())
         create_star(world, spawner, screen, y)
+
+
+def create_flying_enemies(word: esper.World, lvl_cfg: dict):
+    flying_enemies_entity = word.create_entity()
+    word.add_component(flying_enemies_entity, CFlyingEnemies(
+        lvl_cfg["max_flying_enemies"], lvl_cfg["min_flying_time"], lvl_cfg["max_flying_time"]))

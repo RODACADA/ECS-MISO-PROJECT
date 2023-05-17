@@ -4,7 +4,8 @@ import esper
 
 from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts, create_background
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
+    create_bullet, create_texts, create_background, create_flying_enemies
 from src.create.prefab_creator_interface import TextAlignment, create_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
@@ -73,7 +74,6 @@ class PlayScene(Scene):
         self.ecs_world = esper.World()
 
         self.num_bullets = 0
-        self.flying_enemies = [0]
         self.is_player_dead = [False]
 
     def do_create(self):
@@ -99,8 +99,7 @@ class PlayScene(Scene):
             self._sb_velocity = c_v
             self._sb_surface = c_s
 
-        self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
-
+        create_flying_enemies(self.ecs_world, self.level_01_cfg)
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
@@ -119,8 +118,7 @@ class PlayScene(Scene):
             if not self.is_player_dead[0]:
                 system_enemies_bullets(
                     self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
-                system_enemies_fly(
-                    self.ecs_world, self.flying_enemies, self.max_flying_enemies)
+                system_enemies_fly(self.ecs_world, delta_time)
 
             system_screen_bounce(self.ecs_world, self.screen)
             system_screen_player(self.ecs_world, self.screen)
@@ -137,7 +135,7 @@ class PlayScene(Scene):
             system_explosion_kill(self.ecs_world)
 
             system_enemy_state(
-                self.ecs_world, self._player_c_t, self.enemies_sounds_cfg)
+                self.ecs_world, self._player_c_t, self.enemies_sounds_cfg, self.screen)
             # system_enemy_hunter_state(
             # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
             # system_update_cd_text(self.ecs_world, self._player_entity)
