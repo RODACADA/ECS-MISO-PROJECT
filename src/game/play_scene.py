@@ -13,7 +13,8 @@ from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
 from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
     create_bullet, create_texts, create_background, create_flying_enemies
-from src.create.prefab_creator_interface import TextAlignment, create_text, update_text
+
+from src.create.prefab_creator_interface import TextAlignment, create_life_counter, create_text, update_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
@@ -159,6 +160,10 @@ class PlayScene(Scene):
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
+        life_config = ServiceLocator.setting_service.get("assets/cfg/interface.json")["vidas"]
+        player_config = ServiceLocator.setting_service.get("assets/cfg/player.json")
+        self.lives = create_life_counter(self.ecs_world, life_config, player_config)
+        
         self.is_paused = False
 
         self.indicators = {
@@ -223,6 +228,7 @@ class PlayScene(Scene):
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
 
+
     """ def do_clean(self):
         self._paused = False """
 
@@ -285,3 +291,16 @@ class PlayScene(Scene):
 
     # def do_draw(self, screen: pygame.Surface):
     #    system_background(self.ecs_world, self.delta_time, screen)
+
+    """ def do_draw(self, screen):
+        # Dibuja las vidas restantes
+        for i, life in enumerate(self.lives[:self.indicators["remaining_lives"]]):
+            # Aquí puedes obtener la posición x para cada imagen de vida,
+            # dependiendo del valor de i y de cuánto espacio quieres dejar entre las imágenes
+            pos_x = i * 20  # Por ejemplo, dejamos 20 píxeles entre cada imagen
+
+            # Obtén la superficie de la vida
+            life_surf = self.ecs_world.component_for_entity(life, CSurface).surf
+
+            screen.blit(life_surf, (pos_x, 10))  # Dibuja la imagen de vida en la pantalla """
+            

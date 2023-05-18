@@ -55,6 +55,27 @@ def create_image(world: esper.World, img_path: str, pos: pygame.Vector2):
 
     return image_entity
 
+def create_life_counter(world: esper.World, life_config: dict, player_config: dict) -> int:
+    image_path = life_config["image"]
+    image = pygame.image.load(image_path)  # Carga la imagen de la vida
+    pos = pygame.Vector2(life_config["pos"]["x"], life_config["pos"]["y"])
+    
+    life_entities = []
+    for i in range(player_config["lives"]):
+        # Crear la entidad para cada vida
+        life_entity = world.create_entity()
+        
+        # Añade un componente de superficie con la imagen de la vida
+        world.add_component(life_entity, CSurface.from_surface(image))
+        
+        # Añade un componente de transformación para la posición. 
+        # Ajusta la posición para cada vida en función del índice
+        world.add_component(life_entity, CTransform(pos + pygame.Vector2(i * image.get_width(), 0)))
+        
+        # Añade la entidad a la lista
+        life_entities.append(life_entity)
+    
+    return life_entities
 
 def create_menus(world:esper.World) -> dict:
     set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")

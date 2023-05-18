@@ -113,6 +113,7 @@ def create_input_player(world: esper.World):
     input_pause = world.create_entity()
     input_back_to_home = world.create_entity()
 
+
     world.add_component(input_left,
                         CInputCommand("PLAYER_LEFT", pygame.K_LEFT))
     world.add_component(input_right,
