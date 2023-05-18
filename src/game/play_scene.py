@@ -16,7 +16,7 @@ from src.engine.service_locator import ServiceLocator
 from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
     create_bullet, create_texts, create_background, create_flying_enemies
 
-from src.create.prefab_creator_interface import TextAlignment, create_life_counter, create_text, update_text
+from src.create.prefab_creator_interface import TextAlignment, create_level_flags, create_life_counter, create_text, update_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
@@ -90,10 +90,6 @@ class PlayScene(Scene):
                                              ["g"], self.interface_cfg["high_score_color"]["b"])
 
     def do_create(self, context=None):
-        """ create_text(self.ecs_world, "1UP", 8,
-                    pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
-                    TextAlignment.CENTER) """
-        
         self._paused = False
         self.finished_time = 0
         self.num_bullets = 0
@@ -132,6 +128,18 @@ class PlayScene(Scene):
                                       self.normal_text_color, pygame.Vector2(
                                           70, 25),
                                       TextAlignment.RIGHT)
+        
+        # Creación del contador de niveles
+        lvl = "00" if self.indicators["curent_lvl"] == 0 else str(
+        self.indicators["curent_lvl"])
+        self.level_text = create_text(self.ecs_world, "0" + lvl, 8,
+                                      self.normal_text_color, pygame.Vector2(220, 24),TextAlignment.RIGHT)
+
+        create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(
+            self.interface_cfg["title_text_color"]["r"], 
+            self.interface_cfg["title_text_color"]["g"], 
+            self.interface_cfg["title_text_color"]["b"]),
+                    pygame.Vector2(152, 15), TextAlignment.RIGHT)
 
         create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                                                  ["g"], self.interface_cfg["title_text_color"]["b"]),
@@ -199,8 +207,13 @@ class PlayScene(Scene):
             "assets/cfg/player.json")
         self.lives = create_life_counter(
             self.ecs_world, life_config, player_config)
+        
+        
+        # Crea la bandera del primer nivel
+        self.flag_entities = create_level_flags(self.ecs_world, 1)
 
         self.is_paused = False
+
 
     def do_update(self, delta_time: float):
         if self._next_lvl_cs.show and pygame.time.get_ticks() >= 2000 + self.finished_time:
@@ -253,22 +266,19 @@ class PlayScene(Scene):
                 self.ecs_world, self.start_time, self.start_text)
             system_enemy_state(
                 self.ecs_world, self._player_c_t, self.enemies_sounds_cfg, self.screen)
-            # system_enemy_hunter_state(
-            # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
-            # system_update_cd_text(self.ecs_world, self._player_entity)
 
-        # system_update_pause_texts(self.ecs_world, self.is_paused)
         system_animation(self.ecs_world, delta_time)
 
         system_background(self.ecs_world, delta_time, self.screen)
         system_blinking(self.ecs_world, delta_time)
+        # Si el número de banderas es menor que el nivel actual, crea banderas adicionales
+        if len(self.flag_entities) <= self.indicators["curent_lvl"]:
+            new_flags = create_level_flags(self.ecs_world, self.indicators["curent_lvl"] - len(self.flag_entities))
+            self.flag_entities.extend(new_flags)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
         self.remaining_enemies = len(self.ecs_world.get_component(CTagEnemy))
-
-    """ def do_clean(self):
-        self._paused = False """
 
     def do_action(self, c_input: CInputCommand):
         if c_input.name == "PLAYER_LEFT":
@@ -315,10 +325,13 @@ class PlayScene(Scene):
         self._player_c_t.pos = pos
 
     def reduce_lives(self):
+        # Reduce la cantidad de vidas en los indicadores
         self.indicators["remaining_lives"] -= 1
-        print(self.indicators)
-        # print("Reducing lives -1, remaining %s" %
-        #       self.indicators["remaining_lives"])
+
+        # Elimina una de las entidades de vida
+        if self.lives:
+            life_to_remove = self.lives.pop()
+            self.ecs_world.delete_entity(life_to_remove)
 
     def increase_score(self, enemy_type: str, is_flying: bool):
         if not is_flying:

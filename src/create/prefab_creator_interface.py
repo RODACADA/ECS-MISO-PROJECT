@@ -128,4 +128,17 @@ def create_blinking_text(world:esper.World, text:str, alignment:TextAlignment, b
     world.add_component(entity, CBlink(blink_interval))  # Agrega el componente CBlink a la entidad
     return entity
 
+def create_level_flags(world: esper.World, num_flags: int) -> list:
+    set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
+    flag_image_path = set_interface["levels"]["image"]
+    flag_image = pygame.image.load(flag_image_path)
+    pos = pygame.Vector2(set_interface["levels"]["pos"]["x"], set_interface["levels"]["pos"]["y"])
 
+    flag_entities = []
+    for i in range(num_flags):
+        flag_entity = world.create_entity()
+        world.add_component(flag_entity, CSurface.from_surface(flag_image))
+        world.add_component(flag_entity, CTransform(pos + pygame.Vector2(i * flag_image.get_width(), 0)))
+        flag_entities.append(flag_entity)
+
+    return flag_entities
