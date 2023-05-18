@@ -129,7 +129,7 @@ class PlayScene(Scene):
             self.paused_text, CSurface)
         self._paused_cs.show = False
 
-        self.game_over_text = create_text(self.ecs_world, "GAME OVER", 8,
+        self.game_over_text = create_text(self.ecs_world, "GAME OVER - PRESS 'M'", 8,
                                           self.normal_text_color, pygame.Vector2(
                                               128, 160),
                                           TextAlignment.CENTER)
@@ -250,6 +250,9 @@ class PlayScene(Scene):
             create_bullet(self.ecs_world, self._player_c_t.pos,
                           self._player_c_s.area.size, self.bullet_cfg, False)
             self._sb_surface.show = False
+
+        if c_input.name == "BACK_TO_HOME" and self.game_over:
+            self.switch_scene("MENU_SCENE")
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
