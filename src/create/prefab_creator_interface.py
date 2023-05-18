@@ -7,14 +7,17 @@ from src.ecs.components.c_transform import CTransform
 from src.engine.service_locator import ServiceLocator
 from src.ecs.components.c_blink import CBlink
 
+
 class TextAlignment(Enum):
     LEFT = 0,
     RIGHT = 1
     CENTER = 2
 
-def create_text(world:esper.World, txt:str, size:int, 
-                color:pygame.Color, pos:pygame.Vector2, alignment:TextAlignment) -> int:
-    font = ServiceLocator.fonts_service.get("assets/fnt/PressStart2P.ttf", size)
+
+def create_text(world: esper.World, txt: str, size: int,
+                color: pygame.Color, pos: pygame.Vector2, alignment: TextAlignment) -> int:
+    font = ServiceLocator.fonts_service.get(
+        "assets/fnt/PressStart2P.ttf", size)
     text_entity = world.create_entity()
 
     world.add_component(text_entity, CSurface.from_text(txt, font, color))
@@ -31,7 +34,17 @@ def create_text(world:esper.World, txt:str, size:int,
                         CTransform(pos + origin))
     return text_entity
 
-def create_image(world:esper.World, img_path:str, pos:pygame.Vector2):
+
+def update_text(world: esper.World, entity: int, text: str, size: int, color):
+    font = ServiceLocator.fonts_service.get(
+        "assets/fnt/PressStart2P.ttf", size)
+
+    component = world.component_for_entity(entity, CSurface)
+    component.surf = font.render(text, True, color)
+    component.area = component.surf.get_rect()
+
+
+def create_image(world: esper.World, img_path: str, pos: pygame.Vector2):
     image_entity = world.create_entity()
 
     # Carga la imagen desde el archivo
@@ -41,6 +54,7 @@ def create_image(world:esper.World, img_path:str, pos:pygame.Vector2):
     world.add_component(image_entity, CTransform(pos))
 
     return image_entity
+
 
 def create_menus(world:esper.World) -> dict:
     set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
@@ -92,4 +106,5 @@ def create_blinking_text(world:esper.World, text:str, alignment:TextAlignment, b
     entity = create_text(world, text, 8, rojo, pygame.Vector2(128, screen_height+132), alignment)
     world.add_component(entity, CBlink(blink_interval))  # Agrega el componente CBlink a la entidad
     return entity
+
 

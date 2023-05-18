@@ -1,4 +1,6 @@
 {
+  "lvl_name": "01",
+  "highest_score": 5000,
   "player_spawn": {
     "position": {
       "x": 128,
@@ -6,9 +8,15 @@
     },
     "max_bullets": 1
   },
+  "player_respawn_time": 4000,
   "max_flying_enemies": 1,
-  "enemies_fire_prob_move": 0.0005,
-  "enemies_fire_prob_attacking": 0.1,
+  "min_flying_time": 3,
+  "max_flying_time": 8,
+  "enemies_fire_prob_move": 0.0008,
+  "enemies_fire_prob_attacking": 0.05,
+  "start_sound": "assets/snd/game_start.ogg",
+  "pause_sound": "assets/snd/game_paused.ogg",
+  "game_over_sound": "assets/snd/game_over.ogg",
   "enemy_spawn_events": [
     {
       "time": 0.0,

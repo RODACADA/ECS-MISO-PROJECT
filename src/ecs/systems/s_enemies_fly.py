@@ -4,12 +4,15 @@ import esper
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
+from src.ecs.components.c_fliying_enemies import CFlyingEnemies
 
 
-def system_enemies_fly(world: esper.World, flying_enemies: List[int], max_flying_enemies: int):
-    if flying_enemies[0] >= max_flying_enemies:
-        return
-    else:
+def system_enemies_fly(world: esper.World, delta_time: float):
+    _, flying_enemies = world.get_component(CFlyingEnemies)[0]
+
+    flying_enemies.next_flying_time -= delta_time
+
+    if flying_enemies.next_flying_time <= 0 and flying_enemies.flying_enemies_count < flying_enemies.max_flying_enemies:
         all_enemies = world.get_components(CTagEnemy)
 
         elegible_entities = []
@@ -23,5 +26,7 @@ def system_enemies_fly(world: esper.World, flying_enemies: List[int], max_flying
         enemy_tag: CTagEnemy = world.component_for_entity(
             selected_enemy, CTagEnemy)
         enemy_tag.is_flying = True
+        flying_enemies.flying_enemies_count += 1
+        flying_enemies.next_flying_time = random.randrange(
+            flying_enemies.min_flying_time*100//1, flying_enemies.max_flying_time*100//1 + 1)/100
 
-        flying_enemies[0] += 1

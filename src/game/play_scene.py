@@ -1,12 +1,18 @@
 import json
 import pygame
 import esper
+
 from src.create import prefab_creator_interface
+
+from src.ecs.systems.s_delete_start_text import system_delete_start_text
+from src.ecs.systems.s_show_static_bullet import system_show_static_bullet
+
 
 from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_texts, create_background
-from src.create.prefab_creator_interface import TextAlignment, create_text
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
+    create_bullet, create_texts, create_background, create_flying_enemies
+from src.create.prefab_creator_interface import TextAlignment, create_text, update_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
@@ -36,7 +42,6 @@ from src.ecs.systems.s_static_bullet_movement import system_static_bullet_moveme
 from src.ecs.systems.s_update_cd_text import system_update_cd_text
 from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 import src.engine.game_engine
-
 
 
 class PlayScene(Scene):
@@ -75,14 +80,63 @@ class PlayScene(Scene):
         self.ecs_world = esper.World()
 
         self.num_bullets = 0
-        self.flying_enemies = [0]
         self.is_player_dead = [False]
+        self.last_player_death_time = [None]
+        self.game_over = False
+        self.last_enemies_dir_swap = [0]
+        self.title_text_color = pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
+                                             ["g"], self.interface_cfg["title_text_color"]["b"])
+        self.normal_text_color = pygame.Color(self.interface_cfg["normal_text_color"]["r"], self.interface_cfg["normal_text_color"]
+                                              ["g"], self.interface_cfg["normal_text_color"]["b"])
+        self.high_score_color = pygame.Color(self.interface_cfg["high_score_color"]["r"], self.interface_cfg["high_score_color"]
+                                             ["g"], self.interface_cfg["high_score_color"]["b"])
 
     def do_create(self):
         """ create_text(self.ecs_world, "1UP", 8,
                     pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
                     TextAlignment.CENTER) """
         prefab_creator_interface.create_menus(self.ecs_world)
+        self.start_time = pygame.time.get_ticks()
+        ServiceLocator.sounds_service.play(self.level_01_cfg["start_sound"])
+        create_text(self.ecs_world, "1UP", 8,
+                    self.title_text_color, pygame.Vector2(32, 18),
+                    TextAlignment.LEFT)
+        self.score_text = create_text(self.ecs_world, "00", 8,
+                                      self.normal_text_color, pygame.Vector2(
+                                          70, 28),
+                                      TextAlignment.RIGHT)
+
+        create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
+                                                                 ["g"], self.interface_cfg["title_text_color"]["b"]),
+                    pygame.Vector2(152, 18), TextAlignment.RIGHT)
+
+        create_text(self.ecs_world, str(self.interface_cfg["high_score_max_value"]),
+                    8, self.high_score_color, pygame.Vector2(145, 28), TextAlignment.RIGHT)
+
+        self.start_text = create_text(self.ecs_world, "GAME START", 8,
+                                      self.normal_text_color, pygame.Vector2(
+                                          128, 160),
+                                      TextAlignment.CENTER)
+
+        self.paused_text = create_text(self.ecs_world, "PAUSED", 8,
+                                       self.title_text_color, pygame.Vector2(
+                                           128, 160),
+                                       TextAlignment.CENTER)
+
+        self._paused_cs = self.ecs_world.component_for_entity(
+            self.paused_text, CSurface)
+        self._paused_cs.show = False
+
+        self.game_over_text = create_text(self.ecs_world, "GAME OVER", 8,
+                                          self.normal_text_color, pygame.Vector2(
+                                              128, 160),
+                                          TextAlignment.CENTER)
+
+        self._game_over_cs = self.ecs_world.component_for_entity(
+            self.game_over_text, CSurface)
+        self._game_over_cs.show = False
+
+
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
@@ -101,45 +155,62 @@ class PlayScene(Scene):
             self._sb_velocity = c_v
             self._sb_surface = c_s
 
-        self.max_flying_enemies = self.level_01_cfg["max_flying_enemies"]
-
+        create_flying_enemies(self.ecs_world, self.level_01_cfg)
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
         self.is_paused = False
 
+        self.indicators = {
+            "current_score": 0,
+            "remaining_lives": 3,
+            "curent_lvl": self.level_01_cfg["lvl_name"],
+            "highest_score": self.level_01_cfg["highest_score"],
+        }
+
     def do_update(self, delta_time: float):
-        if not self.is_paused:
-            if self.is_player_dead[0]:
+        if not self.is_paused and pygame.time.get_ticks() >= 2000 + self.start_time:
+
+            if self.indicators["remaining_lives"] >= 1 and self.is_player_dead[0] and pygame.time.get_ticks() >= self.last_player_death_time[0]+self.level_01_cfg["player_respawn_time"]:
+                self.reduce_lives()
                 self.respawn_player()
+
+            if not self.game_over and self.indicators["remaining_lives"] == 0 and self.is_player_dead[0]:
+                self.game_over = True
+                ServiceLocator.sounds_service.play(
+                    self.level_01_cfg["game_over_sound"])
+                self._game_over_cs.show = True
 
             system_movement(self.ecs_world, delta_time)
             system_enemy_spawner(
                 self.ecs_world, self.enemies_cfg, delta_time)
             system_static_bullet_movement(self.ecs_world)
+            system_show_static_bullet(
+                self.ecs_world, self._sb_surface, self.is_player_dead)
 
             if not self.is_player_dead[0]:
                 system_enemies_bullets(
                     self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
-                system_enemies_fly(
-                    self.ecs_world, self.flying_enemies, self.max_flying_enemies)
+                system_enemies_fly(self.ecs_world, delta_time)
 
-            system_screen_bounce(self.ecs_world, self.screen)
+            system_screen_bounce(self.ecs_world, self.screen,
+                                 self.last_enemies_dir_swap)
             system_screen_player(self.ecs_world, self.screen)
             system_screen_bullet(self.ecs_world, self.screen)
 
             if not self.is_player_dead[0]:
                 system_collision_enemy_bullet(
-                    self.ecs_world, self.enemy_explosion_cfg)
+                    self.ecs_world, self.enemy_explosion_cfg, self.increase_score)
                 system_collision_player_bullet(
-                    self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
+                    self.ecs_world, self.player_explosion_cfg, self.is_player_dead, self.last_player_death_time)
                 system_collision_player_enemy(self.ecs_world, self._player_entity,
-                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead)
+                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead, self.last_player_death_time)
 
             system_explosion_kill(self.ecs_world)
-
+            system_delete_start_text(
+                self.ecs_world, self.start_time, self.start_text)
             system_enemy_state(
-                self.ecs_world, self._player_c_t, self.enemies_sounds_cfg)
+                self.ecs_world, self._player_c_t, self.enemies_sounds_cfg, self.screen)
             # system_enemy_hunter_state(
             # self.ecs_world, self._player_entity, self.enemies_cfg["TypeHunter"])
             # system_update_cd_text(self.ecs_world, self._player_entity)
@@ -175,6 +246,13 @@ class PlayScene(Scene):
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
+                if not self.is_paused:
+                    ServiceLocator.sounds_service.play(
+                        self.level_01_cfg["pause_sound"])
+                    self._paused_cs.show = True
+                else:
+                    self._paused_cs.show = False
+
                 self.is_paused = not self.is_paused
 
     def respawn_player(self):
@@ -186,5 +264,20 @@ class PlayScene(Scene):
                              self.level_01_cfg["player_spawn"]["position"]["y"] - (size[1] / 2))
         self._player_c_t.pos = pos
 
-    #def do_draw(self, screen: pygame.Surface):
+    def reduce_lives(self):
+        self.indicators["remaining_lives"] -= 1
+        # print("Reducing lives -1, remaining %s" %
+        #       self.indicators["remaining_lives"])
+
+    def increase_score(self, enemy_type: str, is_flying: bool):
+        if not is_flying:
+            self.indicators["current_score"] += self.enemies_cfg[enemy_type]["kill_score"]
+        else:
+            self.indicators["current_score"] += (
+                self.enemies_cfg[enemy_type]["kill_score"]*2)
+
+        update_text(self.ecs_world, self.score_text, str(
+            self.indicators["current_score"]), 8, self.normal_text_color)
+
+    # def do_draw(self, screen: pygame.Surface):
     #    system_background(self.ecs_world, self.delta_time, screen)

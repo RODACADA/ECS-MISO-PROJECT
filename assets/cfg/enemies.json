@@ -1,8 +1,10 @@
 {
   "TypeA": {
+    "name": "TypeA",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 30,
     "image": "assets/img/invaders_enemy_01.png",
     "animations": {
       "number_frames": 5,
@@ -29,9 +31,11 @@
     }
   },
   "TypeB": {
+    "name": "TypeB",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 40,
     "image": "assets/img/invaders_enemy_02.png",
     "animations": {
       "number_frames": 5,
@@ -58,9 +62,11 @@
     }
   },
   "TypeC": {
+    "name": "TypeC",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 50,
     "image": "assets/img/invaders_enemy_03.png",
     "animations": {
       "number_frames": 5,
@@ -87,9 +93,34 @@
     }
   },
   "TypeD": {
+    "name": "TypeD",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
-    "image": "assets/img/invaders_enemy_04.png"
+    "kill_score": 60,
+    "image": "assets/img/invaders_enemy_04.png",
+    "animations": {
+      "number_frames": 1,
+      "list": [
+        {
+          "name": "MOVE",
+          "start": 0,
+          "end": 0,
+          "framerate": 5
+        },
+        {
+          "name": "FLYING_ATTACK",
+          "start": 0,
+          "end": 0,
+          "framerate": 1
+        },
+        {
+          "name": "FLYING_RETURN",
+          "start": 0,
+          "end": 0,
+          "framerate": 1
+        }
+      ]
+    }
   }
 }
