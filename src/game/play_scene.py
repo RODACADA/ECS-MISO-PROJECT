@@ -1,8 +1,12 @@
 import json
 import pygame
 import esper
+
+from src.create import prefab_creator_interface
+
 from src.ecs.systems.s_delete_start_text import system_delete_start_text
 from src.ecs.systems.s_show_static_bullet import system_show_static_bullet
+
 
 from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
@@ -88,6 +92,10 @@ class PlayScene(Scene):
                                              ["g"], self.interface_cfg["high_score_color"]["b"])
 
     def do_create(self):
+        """ create_text(self.ecs_world, "1UP", 8,
+                    pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
+                    TextAlignment.CENTER) """
+        prefab_creator_interface.create_menus(self.ecs_world)
         self.start_time = pygame.time.get_ticks()
         ServiceLocator.sounds_service.play(self.level_01_cfg["start_sound"])
         create_text(self.ecs_world, "1UP", 8,
