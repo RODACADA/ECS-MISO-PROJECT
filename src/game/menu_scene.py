@@ -62,18 +62,17 @@ class MenuScene(Scene):
                 if entity_transform.pos.y < final_position.y:
                     entity_transform.pos.y = final_position.y
 
+        
     def do_draw(self, screen):
-        # estrellas
         for _, (star, surf, transform) in self.ecs_world.get_components(CBGStar, CSurface, CTransform):
             if surf.show:
                 screen.blit(surf.surf, transform.pos)
 
-        # textos y logos
         for ent, (surf, transform) in self.ecs_world.get_components(CSurface, CTransform):
-            if surf.show:
+            if not self.ecs_world.has_component(ent, CBGStar) and surf.show:
                 screen.blit(surf.surf, transform.pos)
 
-        pygame.display.flip()
+        pygame.display.flip()    
 
     def do_action(self, action: CInputCommand):
         if action.name == "START_GAME":
