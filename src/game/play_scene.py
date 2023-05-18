@@ -85,6 +85,7 @@ class PlayScene(Scene):
         self.high_score_color = pygame.Color(self.interface_cfg["high_score_color"]["r"], self.interface_cfg["high_score_color"]
                                              ["g"], self.interface_cfg["high_score_color"]["b"])
 
+
     def do_create(self):
         create_text(self.ecs_world, "1UP", 8,
                     self.title_text_color, pygame.Vector2(32, 18),
