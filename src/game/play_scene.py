@@ -3,6 +3,7 @@ import pygame
 import esper
 
 from src.create import prefab_creator_interface
+from src.ecs.systems.s_blink import system_blinking
 
 from src.ecs.systems.s_delete_start_text import system_delete_start_text
 from src.ecs.systems.s_show_static_bullet import system_show_static_bullet
@@ -99,19 +100,19 @@ class PlayScene(Scene):
         self.start_time = pygame.time.get_ticks()
         ServiceLocator.sounds_service.play(self.level_01_cfg["start_sound"])
         create_text(self.ecs_world, "1UP", 8,
-                    self.title_text_color, pygame.Vector2(32, 18),
+                    self.title_text_color, pygame.Vector2(32, 15),
                     TextAlignment.LEFT)
         self.score_text = create_text(self.ecs_world, "00", 8,
                                       self.normal_text_color, pygame.Vector2(
-                                          70, 28),
+                                          70, 25),
                                       TextAlignment.RIGHT)
 
         create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                                                  ["g"], self.interface_cfg["title_text_color"]["b"]),
-                    pygame.Vector2(152, 18), TextAlignment.RIGHT)
+                    pygame.Vector2(152, 15), TextAlignment.RIGHT)
 
         create_text(self.ecs_world, str(self.interface_cfg["high_score_max_value"]),
-                    8, self.high_score_color, pygame.Vector2(145, 28), TextAlignment.RIGHT)
+                    8, self.high_score_color, pygame.Vector2(145, 25), TextAlignment.RIGHT)
 
         self.start_text = create_text(self.ecs_world, "GAME START", 8,
                                       self.normal_text_color, pygame.Vector2(
@@ -135,7 +136,6 @@ class PlayScene(Scene):
         self._game_over_cs = self.ecs_world.component_for_entity(
             self.game_over_text, CSurface)
         self._game_over_cs.show = False
-
 
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
@@ -163,7 +163,7 @@ class PlayScene(Scene):
 
         self.indicators = {
             "current_score": 0,
-            "remaining_lives": 3,
+            "remaining_lives": self.level_01_cfg["player_lives"],
             "curent_lvl": self.level_01_cfg["lvl_name"],
             "highest_score": self.level_01_cfg["highest_score"],
         }
@@ -219,6 +219,7 @@ class PlayScene(Scene):
         system_animation(self.ecs_world, delta_time)
 
         system_background(self.ecs_world, delta_time, self.screen)
+        system_blinking(self.ecs_world, delta_time)
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
 

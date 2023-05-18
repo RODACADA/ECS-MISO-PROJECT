@@ -1,5 +1,6 @@
 {
   "lvl_name": "01",
+  "player_lives": 3,
   "highest_score": 5000,
   "player_spawn": {
     "position": {
