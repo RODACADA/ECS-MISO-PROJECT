@@ -14,7 +14,7 @@ from src.ecs.components.c_fliying_enemies import CFlyingEnemies
 from src.create.prefab_creator import create_explosion
 
 
-def system_collision_enemy_bullet(world: esper.World, explosion_info: dict):
+def system_collision_enemy_bullet(world: esper.World, explosion_info: dict, increase_score):
     components_enemy = world.get_components(CSurface, CTransform, CTagEnemy)
     components_bullet = world.get_components(CSurface, CTransform, CTagBullet)
     _, flying_enemies = world.get_component(CFlyingEnemies)[0]
@@ -32,6 +32,9 @@ def system_collision_enemy_bullet(world: esper.World, explosion_info: dict):
                     flying_enemies.flying_enemies_count -= 1
                 world.delete_entity(enemy_entity)
                 world.delete_entity(bullet_entity)
+
+                increase_score(c_ene.enemy_type, c_ene.is_flying)
+
                 create_explosion(world, c_t.pos, explosion_info)
                 for _, (s_tag, s_s) in sb_components:
                     s_s.show = True
