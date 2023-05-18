@@ -128,6 +128,7 @@ class PlayScene(Scene):
             self.game_over_text, CSurface)
         self._game_over_cs.show = False
 
+
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
