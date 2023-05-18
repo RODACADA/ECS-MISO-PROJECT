@@ -47,8 +47,9 @@ class GameEngine:
             self._handle_switch_scene()
         self._do_clean()
 
-    def switch_scene(self, new_scene_name: str):
+    def switch_scene(self, new_scene_name: str, context=None):
         self._scene_name_to_switch = new_scene_name
+        self.context = context
 
     def _create(self):
         self._current_scene.do_create()
@@ -75,7 +76,7 @@ class GameEngine:
         if self._scene_name_to_switch is not None:
             self._current_scene.clean()
             self._current_scene = self._scenes[self._scene_name_to_switch]
-            self._current_scene.do_create()
+            self._current_scene.do_create(self.context)
             self._scene_name_to_switch = None
 
     def _do_action(self, action: CInputCommand):
