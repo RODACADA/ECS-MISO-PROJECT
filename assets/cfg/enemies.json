@@ -1,5 +1,6 @@
 {
   "TypeA": {
+    "name": "TypeA",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
@@ -30,6 +31,7 @@
     }
   },
   "TypeB": {
+    "name": "TypeB",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
@@ -60,6 +62,7 @@
     }
   },
   "TypeC": {
+    "name": "TypeC",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
@@ -90,6 +93,7 @@
     }
   },
   "TypeD": {
+    "name": "TypeD",
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,

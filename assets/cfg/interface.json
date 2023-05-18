@@ -27,6 +27,14 @@
         "pos": {
             "x": 160,
             "y": 20
+    "blinking_text": {
+    "initial_pos": { 
+        "x": 128, 
+        "y": 600 
+    },
+    "final_pos": { 
+        "x": 128, 
+        "y": 400 
         }
     }
 }
