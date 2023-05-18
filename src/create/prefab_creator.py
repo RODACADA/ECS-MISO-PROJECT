@@ -110,6 +110,7 @@ def create_input_player(world: esper.World):
     input_right = world.create_entity()
     input_fire = world.create_entity()
     input_pause = world.create_entity()
+    input_test = world.create_entity()
 
     world.add_component(input_left,
                         CInputCommand("PLAYER_LEFT", pygame.K_LEFT))
@@ -118,6 +119,7 @@ def create_input_player(world: esper.World):
     world.add_component(input_fire,
                         CInputCommand("PLAYER_FIRE", pygame.K_z))
     world.add_component(input_pause, CInputCommand("PAUSE", pygame.K_p))
+    world.add_component(input_test, CInputCommand("TEST_LIVES", pygame.K_SPACE)) 
 
 
 def create_bullet(world: esper.World,
