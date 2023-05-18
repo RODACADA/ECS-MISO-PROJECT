@@ -3,6 +3,7 @@
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 30,
     "image": "assets/img/invaders_enemy_01.png",
     "animations": {
       "number_frames": 5,
@@ -32,6 +33,7 @@
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 40,
     "image": "assets/img/invaders_enemy_02.png",
     "animations": {
       "number_frames": 5,
@@ -61,6 +63,7 @@
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 50,
     "image": "assets/img/invaders_enemy_03.png",
     "animations": {
       "number_frames": 5,
@@ -90,6 +93,7 @@
     "velocity": 8,
     "vertical_velocity": 50,
     "chase_velocity": 50,
+    "kill_score": 60,
     "image": "assets/img/invaders_enemy_04.png",
     "animations": {
       "number_frames": 1,
