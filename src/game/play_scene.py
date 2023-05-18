@@ -80,16 +80,8 @@ class PlayScene(Scene):
             (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
             pygame.SCALED)
 
-        self._paused = False
         self.ecs_world = esper.World()
 
-        self.finished_time = 0
-        self.num_bullets = 0
-        self.remaining_enemies = 10
-        self.is_player_dead = [False]
-        self.last_player_death_time = [None]
-        self.game_over = False
-        self.last_enemies_dir_swap = [0]
         self.title_text_color = pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                              ["g"], self.interface_cfg["title_text_color"]["b"])
         self.normal_text_color = pygame.Color(self.interface_cfg["normal_text_color"]["r"], self.interface_cfg["normal_text_color"]
@@ -101,7 +93,17 @@ class PlayScene(Scene):
         """ create_text(self.ecs_world, "1UP", 8,
                     pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
                     TextAlignment.CENTER) """
+        self._paused = False
+        self.finished_time = 0
+        self.num_bullets = 0
+        self.remaining_enemies = 10
+        self.is_player_dead = [False]
+        self.last_player_death_time = [None]
+        self.game_over = False
+        self.last_enemies_dir_swap = [0]
 
+        self.allow_compensation_left = False
+        self.allow_compensation_right = False
         if context is None:
             self.indicators = {
                 "current_score": self.level_01_cfg["initial_score"],
@@ -190,10 +192,13 @@ class PlayScene(Scene):
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
-        life_config = ServiceLocator.setting_service.get("assets/cfg/interface.json")["vidas"]
-        player_config = ServiceLocator.setting_service.get("assets/cfg/player.json")
-        self.lives = create_life_counter(self.ecs_world, life_config, player_config)
-        
+        life_config = ServiceLocator.setting_service.get(
+            "assets/cfg/interface.json")["vidas"]
+        player_config = ServiceLocator.setting_service.get(
+            "assets/cfg/player.json")
+        self.lives = create_life_counter(
+            self.ecs_world, life_config, player_config)
+
         self.is_paused = False
 
     def do_update(self, delta_time: float):
@@ -261,21 +266,22 @@ class PlayScene(Scene):
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
         self.remaining_enemies = len(self.ecs_world.get_component(CTagEnemy))
 
-
     """ def do_clean(self):
         self._paused = False """
 
     def do_action(self, c_input: CInputCommand):
         if c_input.name == "PLAYER_LEFT":
             if c_input.phase == CommandPhase.START:
+                self.allow_compensation_left = True
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
+            elif c_input.phase == CommandPhase.END and self.allow_compensation_left:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_RIGHT":
             if c_input.phase == CommandPhase.START:
+                self.allow_compensation_right = True
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
+            elif c_input.phase == CommandPhase.END and self.allow_compensation_right:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"] and not self.is_player_dead[0]:
@@ -309,6 +315,7 @@ class PlayScene(Scene):
 
     def reduce_lives(self):
         self.indicators["remaining_lives"] -= 1
+        print(self.indicators)
         # print("Reducing lives -1, remaining %s" %
         #       self.indicators["remaining_lives"])
 
@@ -336,4 +343,3 @@ class PlayScene(Scene):
             life_surf = self.ecs_world.component_for_entity(life, CSurface).surf
 
             screen.blit(life_surf, (pos_x, 10))  # Dibuja la imagen de vida en la pantalla """
-            
