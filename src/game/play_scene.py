@@ -262,13 +262,6 @@ class PlayScene(Scene):
 
                 self.is_paused = not self.is_paused
 
-        if c_input.name == "TEST_LIVES":
-            if c_input.phase == CommandPhase.START:
-                # Decrementa la cantidad de vidas restantes
-                self.indicators["remaining_lives"] -= 1
-                # Se asegura de que el número de vidas restantes no caiga por debajo de cero
-                self.indicators["remaining_lives"] = max(0, self.indicators["remaining_lives"])
-
     def respawn_player(self):
         self.is_player_dead[0] = False
         self._player_c_s.show = True
