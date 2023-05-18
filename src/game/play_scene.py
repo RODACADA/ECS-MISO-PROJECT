@@ -77,6 +77,7 @@ class PlayScene(Scene):
         self.is_player_dead = [False]
         self.last_player_death_time = [None]
         self.game_over = False
+        self.last_enemies_dir_swap = [0]
         self.title_text_color = pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                              ["g"], self.interface_cfg["title_text_color"]["b"])
         self.normal_text_color = pygame.Color(self.interface_cfg["normal_text_color"]["r"], self.interface_cfg["normal_text_color"]
@@ -151,7 +152,8 @@ class PlayScene(Scene):
                     self.ecs_world, self.level_01_cfg, self.enemy_bullet_cfg, self._player_c_t)
                 system_enemies_fly(self.ecs_world, delta_time)
 
-            system_screen_bounce(self.ecs_world, self.screen)
+            system_screen_bounce(self.ecs_world, self.screen,
+                                 self.last_enemies_dir_swap)
             system_screen_player(self.ecs_world, self.screen)
             system_screen_bullet(self.ecs_world, self.screen)
 
