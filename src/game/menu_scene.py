@@ -12,7 +12,6 @@ from src.create import prefab_creator_interface, prefab_creator
 from src.ecs.components.c_input_command import CInputCommand
 from src.engine.service_locator import ServiceLocator
 
-from src.ecs.components.c_bg_star_spawner import CBgStarSpawner
 from src.ecs.components.c_bg_start import CBGStar
 
 
