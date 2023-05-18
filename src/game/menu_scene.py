@@ -1,5 +1,5 @@
 import pygame
-import esper
+
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.systems.s_background import system_background
@@ -9,7 +9,6 @@ from src.create.prefab_creator_interface import TextAlignment, create_text, crea
 from src.ecs.components.c_input_command import CInputCommand
 from src.engine.service_locator import ServiceLocator 
 
-from src.ecs.components.c_bg_star_spawner import CBgStarSpawner
 from src.ecs.components.c_bg_start import CBGStar
 from src.create.prefab_creator import create_star, create_background
 

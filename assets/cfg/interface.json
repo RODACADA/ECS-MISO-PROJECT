@@ -21,5 +21,12 @@
             "x": 128,
             "y": 60
         }
+    },
+    "vidas": {
+        "image": "./assets/img/invaders_life.png",
+        "pos": {
+            "x": 10,
+            "y": 10
+        }
     }
 }
