@@ -14,6 +14,9 @@
   "max_flying_time": 8,
   "enemies_fire_prob_move": 0.0008,
   "enemies_fire_prob_attacking": 0.05,
+  "start_sound": "assets/snd/game_start.ogg",
+  "pause_sound": "assets/snd/game_paused.ogg",
+  "game_over_sound": "assets/snd/game_over.ogg",
   "enemy_spawn_events": [
     {
       "time": 0.0,
