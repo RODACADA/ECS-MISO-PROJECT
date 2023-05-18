@@ -68,7 +68,7 @@ def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dic
     enemy_entity = create_sprite(world, pos, velocity, enemy_sprite)
 
     world.add_component(enemy_entity, CTagEnemy(
-        "Bouncer", enemy_info["vertical_velocity"], enemy_info["chase_velocity"]))
+        enemy_info["name"], enemy_info["vertical_velocity"], enemy_info["chase_velocity"]))
     if "animations" in enemy_info:
         world.add_component(enemy_entity, CAnimation(enemy_info["animations"]))
     world.add_component(enemy_entity, CEnemyState())

@@ -6,7 +6,7 @@ from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
 from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
     create_bullet, create_texts, create_background, create_flying_enemies
-from src.create.prefab_creator_interface import TextAlignment, create_text
+from src.create.prefab_creator_interface import TextAlignment, create_text, update_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
@@ -77,11 +77,28 @@ class PlayScene(Scene):
         self.is_player_dead = [False]
         self.last_player_death_time = [None]
         self.game_over = False
+        self.title_text_color = pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
+                                             ["g"], self.interface_cfg["title_text_color"]["b"])
+        self.normal_text_color = pygame.Color(self.interface_cfg["normal_text_color"]["r"], self.interface_cfg["normal_text_color"]
+                                              ["g"], self.interface_cfg["normal_text_color"]["b"])
+        self.high_score_color = pygame.Color(self.interface_cfg["high_score_color"]["r"], self.interface_cfg["high_score_color"]
+                                             ["g"], self.interface_cfg["high_score_color"]["b"])
 
     def do_create(self):
         create_text(self.ecs_world, "1UP", 8,
-                    pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
-                    TextAlignment.CENTER)
+                    self.title_text_color, pygame.Vector2(32, 18),
+                    TextAlignment.LEFT)
+        self.score_text = create_text(self.ecs_world, "00", 8,
+                                      self.normal_text_color, pygame.Vector2(
+                                          70, 28),
+                                      TextAlignment.RIGHT)
+
+        create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
+                                                                 ["g"], self.interface_cfg["title_text_color"]["b"]),
+                    pygame.Vector2(152, 18), TextAlignment.RIGHT)
+
+        create_text(self.ecs_world, str(self.interface_cfg["high_score_max_value"]),
+                    8, self.high_score_color, pygame.Vector2(145, 28), TextAlignment.RIGHT)
 
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
@@ -140,7 +157,7 @@ class PlayScene(Scene):
 
             if not self.is_player_dead[0]:
                 system_collision_enemy_bullet(
-                    self.ecs_world, self.enemy_explosion_cfg)
+                    self.ecs_world, self.enemy_explosion_cfg, self.increase_score)
                 system_collision_player_bullet(
                     self.ecs_world, self.player_explosion_cfg, self.is_player_dead, self.last_player_death_time)
                 system_collision_player_enemy(self.ecs_world, self._player_entity,
@@ -202,15 +219,14 @@ class PlayScene(Scene):
         #       self.indicators["remaining_lives"])
 
     def increase_score(self, enemy_type: str, is_flying: bool):
-        if is_flying:
+        if not is_flying:
             self.indicators["current_score"] += self.enemies_cfg[enemy_type]["kill_score"]
-            # print("Updating scores (+%s)" %
-            #       self.enemies_cfg[enemy_type]["kill_score"])
         else:
             self.indicators["current_score"] += (
                 self.enemies_cfg[enemy_type]["kill_score"]*2)
-            # print("Updating scores (+%s)" %
-            #       self.enemies_cfg[enemy_type]["kill_score"] * 2)
+
+        update_text(self.ecs_world, self.score_text, str(
+            self.indicators["current_score"]), 8, self.normal_text_color)
 
     # def do_draw(self, screen: pygame.Surface):
     #    system_background(self.ecs_world, self.delta_time, screen)
