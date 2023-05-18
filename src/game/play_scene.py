@@ -93,6 +93,7 @@ class PlayScene(Scene):
         """ create_text(self.ecs_world, "1UP", 8,
                     pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
                     TextAlignment.CENTER) """
+        
         self._paused = False
         self.finished_time = 0
         self.num_bullets = 0
