@@ -21,12 +21,12 @@ def system_enemies_fly(world: esper.World, delta_time: float):
             if not c_tag.is_flying:
                 elegible_entities.append(enemy_entity)
 
-        selected_enemy = random.choice(elegible_entities)
+        if len(elegible_entities) > 0:
+            selected_enemy = random.choice(elegible_entities)
 
-        enemy_tag: CTagEnemy = world.component_for_entity(
-            selected_enemy, CTagEnemy)
-        enemy_tag.is_flying = True
-        flying_enemies.flying_enemies_count += 1
-        flying_enemies.next_flying_time = random.randrange(
-            flying_enemies.min_flying_time*100//1, flying_enemies.max_flying_time*100//1 + 1)/100
-
+            enemy_tag: CTagEnemy = world.component_for_entity(
+                selected_enemy, CTagEnemy)
+            enemy_tag.is_flying = True
+            flying_enemies.flying_enemies_count += 1
+            flying_enemies.next_flying_time = random.randrange(
+                flying_enemies.min_flying_time*100//1, flying_enemies.max_flying_time*100//1 + 1)/100

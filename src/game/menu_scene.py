@@ -16,7 +16,7 @@ from src.ecs.components.c_bg_start import CBGStar
 
 
 class MenuScene(Scene):
-    def do_create(self):
+    def do_create(self, context=None):
         self.screen = pygame.display.get_surface()
         set_background = ServiceLocator.setting_service.get(
             "assets/cfg/background.json")

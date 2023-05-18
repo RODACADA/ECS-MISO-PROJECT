@@ -3,6 +3,8 @@ import pygame
 import esper
 
 from src.create import prefab_creator_interface
+from src.ecs.components.tags.c_tag_enemy import CTagEnemy
+
 from src.ecs.systems.s_blink import system_blinking
 
 from src.ecs.systems.s_delete_start_text import system_delete_start_text
@@ -78,14 +80,8 @@ class PlayScene(Scene):
             (self.window_cfg["size"]["w"], self.window_cfg["size"]["h"]),
             pygame.SCALED)
 
-        self._paused = False
         self.ecs_world = esper.World()
 
-        self.num_bullets = 0
-        self.is_player_dead = [False]
-        self.last_player_death_time = [None]
-        self.game_over = False
-        self.last_enemies_dir_swap = [0]
         self.title_text_color = pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                              ["g"], self.interface_cfg["title_text_color"]["b"])
         self.normal_text_color = pygame.Color(self.interface_cfg["normal_text_color"]["r"], self.interface_cfg["normal_text_color"]
@@ -93,17 +89,46 @@ class PlayScene(Scene):
         self.high_score_color = pygame.Color(self.interface_cfg["high_score_color"]["r"], self.interface_cfg["high_score_color"]
                                              ["g"], self.interface_cfg["high_score_color"]["b"])
 
-    def do_create(self):
+    def do_create(self, context=None):
         """ create_text(self.ecs_world, "1UP", 8,
                     pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
                     TextAlignment.CENTER) """
+        
+        self._paused = False
+        self.finished_time = 0
+        self.num_bullets = 0
+        self.remaining_enemies = 10
+        self.is_player_dead = [False]
+        self.last_player_death_time = [None]
+        self.game_over = False
+        self.last_enemies_dir_swap = [0]
+
+        self.allow_compensation_left = False
+        self.allow_compensation_right = False
+        if context is None:
+            self.indicators = {
+                "current_score": self.level_01_cfg["initial_score"],
+                "remaining_lives": self.level_01_cfg["player_lives"],
+                "curent_lvl": self.level_01_cfg["lvl_name"],
+                "highest_score": self.level_01_cfg["highest_score"],
+            }
+        else:
+            self.indicators = context
+
+        level_str = "0" + \
+            str(self.indicators["curent_lvl"]) if self.indicators["curent_lvl"] < 10 else str(
+                self.indicators["curent_lvl"])
+
         prefab_creator_interface.create_menus(self.ecs_world)
         self.start_time = pygame.time.get_ticks()
         ServiceLocator.sounds_service.play(self.level_01_cfg["start_sound"])
         create_text(self.ecs_world, "1UP", 8,
                     self.title_text_color, pygame.Vector2(32, 15),
                     TextAlignment.LEFT)
-        self.score_text = create_text(self.ecs_world, "00", 8,
+
+        score = "00" if self.indicators["current_score"] == 0 else str(
+            self.indicators["current_score"])
+        self.score_text = create_text(self.ecs_world, score, 8,
                                       self.normal_text_color, pygame.Vector2(
                                           70, 25),
                                       TextAlignment.RIGHT)
@@ -138,6 +163,14 @@ class PlayScene(Scene):
             self.game_over_text, CSurface)
         self._game_over_cs.show = False
 
+        self.next_lvl_text = create_text(self.ecs_world, "GET READY FOR THE NEXT LEVEL", 8,
+                                         self.title_text_color, pygame.Vector2(
+                                             128, 160),
+                                         TextAlignment.CENTER)
+        self._next_lvl_cs = self.ecs_world.component_for_entity(
+            self.next_lvl_text, CSurface)
+        self._next_lvl_cs.show = False
+
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
@@ -160,21 +193,25 @@ class PlayScene(Scene):
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
         create_background(self.ecs_world, self.bg_cfg, self.screen)
-        life_config = ServiceLocator.setting_service.get("assets/cfg/interface.json")["vidas"]
-        player_config = ServiceLocator.setting_service.get("assets/cfg/player.json")
-        self.lives = create_life_counter(self.ecs_world, life_config, player_config)
-        
+        life_config = ServiceLocator.setting_service.get(
+            "assets/cfg/interface.json")["vidas"]
+        player_config = ServiceLocator.setting_service.get(
+            "assets/cfg/player.json")
+        self.lives = create_life_counter(
+            self.ecs_world, life_config, player_config)
+
         self.is_paused = False
 
-        self.indicators = {
-            "current_score": 0,
-            "remaining_lives": self.level_01_cfg["player_lives"],
-            "curent_lvl": self.level_01_cfg["lvl_name"],
-            "highest_score": self.level_01_cfg["highest_score"],
-        }
-
     def do_update(self, delta_time: float):
+        if self._next_lvl_cs.show and pygame.time.get_ticks() >= 2000 + self.finished_time:
+            self.indicators["curent_lvl"] += 1
+            self.switch_scene("LEVEL_01", context=self.indicators)
+
         if not self.is_paused and pygame.time.get_ticks() >= 2000 + self.start_time:
+            if self.remaining_enemies == 0 and pygame.time.get_ticks() >= 5000 + self.start_time:
+                self._next_lvl_cs.show = True
+                if self.finished_time == 0:
+                    self.finished_time = pygame.time.get_ticks()
 
             if self.indicators["remaining_lives"] >= 1 and self.is_player_dead[0] and pygame.time.get_ticks() >= self.last_player_death_time[0]+self.level_01_cfg["player_respawn_time"]:
                 self.reduce_lives()
@@ -225,9 +262,10 @@ class PlayScene(Scene):
 
         system_background(self.ecs_world, delta_time, self.screen)
         system_blinking(self.ecs_world, delta_time)
+
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
-
+        self.remaining_enemies = len(self.ecs_world.get_component(CTagEnemy))
 
     """ def do_clean(self):
         self._paused = False """
@@ -235,14 +273,16 @@ class PlayScene(Scene):
     def do_action(self, c_input: CInputCommand):
         if c_input.name == "PLAYER_LEFT":
             if c_input.phase == CommandPhase.START:
+                self.allow_compensation_left = True
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
+            elif c_input.phase == CommandPhase.END and self.allow_compensation_left:
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_RIGHT":
             if c_input.phase == CommandPhase.START:
+                self.allow_compensation_right = True
                 self._player_c_v.vel.x += self.player_cfg["input_velocity"]
-            elif c_input.phase == CommandPhase.END:
+            elif c_input.phase == CommandPhase.END and self.allow_compensation_right:
                 self._player_c_v.vel.x -= self.player_cfg["input_velocity"]
 
         if c_input.name == "PLAYER_FIRE" and self.num_bullets < self.level_01_cfg["player_spawn"]["max_bullets"] and not self.is_player_dead[0]:
@@ -276,6 +316,7 @@ class PlayScene(Scene):
 
     def reduce_lives(self):
         self.indicators["remaining_lives"] -= 1
+        print(self.indicators)
         # print("Reducing lives -1, remaining %s" %
         #       self.indicators["remaining_lives"])
 
@@ -303,4 +344,3 @@ class PlayScene(Scene):
             life_surf = self.ecs_world.component_for_entity(life, CSurface).surf
 
             screen.blit(life_surf, (pos_x, 10))  # Dibuja la imagen de vida en la pantalla """
-            
