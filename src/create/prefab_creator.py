@@ -111,6 +111,7 @@ def create_input_player(world: esper.World):
     input_right = world.create_entity()
     input_fire = world.create_entity()
     input_pause = world.create_entity()
+    input_back_to_home = world.create_entity()
 
     world.add_component(input_left,
                         CInputCommand("PLAYER_LEFT", pygame.K_LEFT))
@@ -118,7 +119,11 @@ def create_input_player(world: esper.World):
                         CInputCommand("PLAYER_RIGHT", pygame.K_RIGHT))
     world.add_component(input_fire,
                         CInputCommand("PLAYER_FIRE", pygame.K_z))
+
     world.add_component(input_pause, CInputCommand("PAUSE", pygame.K_p))
+
+    world.add_component(input_back_to_home, CInputCommand(
+        "BACK_TO_HOME", pygame.K_m))
 
 
 def create_bullet(world: esper.World,
@@ -238,10 +243,11 @@ def create_star(world: esper.World, spawner: CBgStarSpawner, screen: pygame.Surf
         spawner.min_blink_time*100//1, spawner.max_blink_time*100//1 + 1)/100
     min_blink_interval = 0.25
     max_blink_interval = 0.5
-    blink_interval = random.uniform(min_blink_interval, max_blink_interval)  # Define el intervalo de parpadeo
+    # Define el intervalo de parpadeo
+    blink_interval = random.uniform(min_blink_interval, max_blink_interval)
 
     star_comp = CBGStar(color, velocity, position, blink_time)
-    
+
     # Agrega los componentes a la entidad
     world.add_component(start_entity, star_comp)
     world.add_component(start_entity, CBlink(blink_interval))
@@ -249,7 +255,7 @@ def create_star(world: esper.World, spawner: CBgStarSpawner, screen: pygame.Surf
 
     # Agrega el componente de transformación
     world.add_component(start_entity, CTransform(position))
-    
+
     return start_entity
 
 
