@@ -38,5 +38,12 @@
         "x": 128, 
         "y": 400 
         }
+    },
+    "levels":{
+        "image": "./assets/img/invaders_level_flag.png",
+        "pos": {
+            "x": 192,
+            "y": 22
+        }
     }
 }
