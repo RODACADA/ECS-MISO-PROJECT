@@ -38,7 +38,6 @@ from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 import src.engine.game_engine
 
 
-
 class PlayScene(Scene):
     def __init__(self, level_path: str, engine: 'src.engine.game_engine.GameEngine') -> None:
         super().__init__(engine)
@@ -76,6 +75,8 @@ class PlayScene(Scene):
 
         self.num_bullets = 0
         self.is_player_dead = [False]
+        self.last_player_death_time = [None]
+        self.game_over = False
 
     def do_create(self):
         create_text(self.ecs_world, "1UP", 8,
@@ -106,10 +107,22 @@ class PlayScene(Scene):
         create_background(self.ecs_world, self.bg_cfg, self.screen)
         self.is_paused = False
 
+        self.indicators = {
+            "current_score": 0,
+            "remaining_lives": 3,
+            "curent_lvl": self.level_01_cfg["lvl_name"],
+            "highest_score": self.level_01_cfg["highest_score"],
+        }
+
     def do_update(self, delta_time: float):
+
         if not self.is_paused:
-            if self.is_player_dead[0]:
+            if self.indicators["remaining_lives"] >= 1 and self.is_player_dead[0] and pygame.time.get_ticks() >= self.last_player_death_time[0]+self.level_01_cfg["player_respawn_time"]:
+                self.reduce_lives()
                 self.respawn_player()
+
+            if not self.game_over and self.indicators["remaining_lives"] == 0 and self.is_player_dead[0]:
+                self.game_over = True
 
             system_movement(self.ecs_world, delta_time)
             system_enemy_spawner(
@@ -129,9 +142,9 @@ class PlayScene(Scene):
                 system_collision_enemy_bullet(
                     self.ecs_world, self.enemy_explosion_cfg)
                 system_collision_player_bullet(
-                    self.ecs_world, self.player_explosion_cfg, self.is_player_dead)
+                    self.ecs_world, self.player_explosion_cfg, self.is_player_dead, self.last_player_death_time)
                 system_collision_player_enemy(self.ecs_world, self._player_entity,
-                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead)
+                                              self.level_01_cfg, self.player_explosion_cfg, self.is_player_dead, self.last_player_death_time)
 
             system_explosion_kill(self.ecs_world)
 
@@ -183,5 +196,21 @@ class PlayScene(Scene):
                              self.level_01_cfg["player_spawn"]["position"]["y"] - (size[1] / 2))
         self._player_c_t.pos = pos
 
-    #def do_draw(self, screen: pygame.Surface):
+    def reduce_lives(self):
+        self.indicators["remaining_lives"] -= 1
+        # print("Reducing lives -1, remaining %s" %
+        #       self.indicators["remaining_lives"])
+
+    def increase_score(self, enemy_type: str, is_flying: bool):
+        if is_flying:
+            self.indicators["current_score"] += self.enemies_cfg[enemy_type]["kill_score"]
+            # print("Updating scores (+%s)" %
+            #       self.enemies_cfg[enemy_type]["kill_score"])
+        else:
+            self.indicators["current_score"] += (
+                self.enemies_cfg[enemy_type]["kill_score"]*2)
+            # print("Updating scores (+%s)" %
+            #       self.enemies_cfg[enemy_type]["kill_score"] * 2)
+
+    # def do_draw(self, screen: pygame.Surface):
     #    system_background(self.ecs_world, self.delta_time, screen)
