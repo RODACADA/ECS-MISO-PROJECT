@@ -89,6 +89,7 @@ class PlayScene(Scene):
 
     def do_create(self):
         self.start_time = pygame.time.get_ticks()
+        ServiceLocator.sounds_service.play(self.level_01_cfg["start_sound"])
         create_text(self.ecs_world, "1UP", 8,
                     self.title_text_color, pygame.Vector2(32, 18),
                     TextAlignment.LEFT)
@@ -104,10 +105,28 @@ class PlayScene(Scene):
         create_text(self.ecs_world, str(self.interface_cfg["high_score_max_value"]),
                     8, self.high_score_color, pygame.Vector2(145, 28), TextAlignment.RIGHT)
 
-        self.start_text = create_text(self.ecs_world, "READY", 8,
+        self.start_text = create_text(self.ecs_world, "GAME START", 8,
                                       self.normal_text_color, pygame.Vector2(
                                           128, 160),
                                       TextAlignment.CENTER)
+
+        self.paused_text = create_text(self.ecs_world, "PAUSED", 8,
+                                       self.title_text_color, pygame.Vector2(
+                                           128, 160),
+                                       TextAlignment.CENTER)
+
+        self._paused_cs = self.ecs_world.component_for_entity(
+            self.paused_text, CSurface)
+        self._paused_cs.show = False
+
+        self.game_over_text = create_text(self.ecs_world, "GAME OVER", 8,
+                                          self.normal_text_color, pygame.Vector2(
+                                              128, 160),
+                                          TextAlignment.CENTER)
+
+        self._game_over_cs = self.ecs_world.component_for_entity(
+            self.game_over_text, CSurface)
+        self._game_over_cs.show = False
 
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
@@ -149,6 +168,9 @@ class PlayScene(Scene):
 
             if not self.game_over and self.indicators["remaining_lives"] == 0 and self.is_player_dead[0]:
                 self.game_over = True
+                ServiceLocator.sounds_service.play(
+                    self.level_01_cfg["game_over_sound"])
+                self._game_over_cs.show = True
 
             system_movement(self.ecs_world, delta_time)
             system_enemy_spawner(
@@ -215,6 +237,13 @@ class PlayScene(Scene):
 
         if c_input.name == "PAUSE":
             if c_input.phase == CommandPhase.START:
+                if not self.is_paused:
+                    ServiceLocator.sounds_service.play(
+                        self.level_01_cfg["pause_sound"])
+                    self._paused_cs.show = True
+                else:
+                    self._paused_cs.show = False
+
                 self.is_paused = not self.is_paused
 
     def respawn_player(self):
