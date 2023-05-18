@@ -2,6 +2,7 @@ import random
 import pygame
 import esper
 from src.ecs.components.c_ability import CAbility
+from src.ecs.components.c_blink import CBlink
 
 from src.ecs.components.c_enemy_spawner import CEnemySpawner
 from src.ecs.components.c_input_command import CInputCommand
@@ -234,10 +235,21 @@ def create_star(world: esper.World, spawner: CBgStarSpawner, screen: pygame.Surf
     position = pygame.Vector2(random.randrange(0, screen.get_width()+1), y)
     blink_time = random.randrange(
         spawner.min_blink_time*100//1, spawner.max_blink_time*100//1 + 1)/100
+    min_blink_interval = 0.25
+    max_blink_interval = 0.5
+    blink_interval = random.uniform(min_blink_interval, max_blink_interval)  # Define el intervalo de parpadeo
 
     star_comp = CBGStar(color, velocity, position, blink_time)
-
+    
+    # Agrega los componentes a la entidad
     world.add_component(start_entity, star_comp)
+    world.add_component(start_entity, CBlink(blink_interval))
+    world.add_component(start_entity, CSurface(pygame.Vector2(1, 1), color))
+
+    # Agrega el componente de transformación
+    world.add_component(start_entity, CTransform(position))
+    
+    return start_entity
 
 
 def create_background(world: esper.World, bg_cfg: dict, screen: pygame.Surface):

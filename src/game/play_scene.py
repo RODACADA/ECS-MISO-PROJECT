@@ -1,6 +1,7 @@
 import json
 import pygame
 import esper
+from src.create import prefab_creator_interface
 
 from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
@@ -78,10 +79,10 @@ class PlayScene(Scene):
         self.is_player_dead = [False]
 
     def do_create(self):
-        create_text(self.ecs_world, "1UP", 8,
+        """ create_text(self.ecs_world, "1UP", 8,
                     pygame.Color(50, 255, 50), pygame.Vector2(160, 20),
-                    TextAlignment.CENTER)
-
+                    TextAlignment.CENTER) """
+        prefab_creator_interface.create_menus(self.ecs_world)
         self._player_entity = create_player_square(
             self.ecs_world, self.player_cfg, self.level_01_cfg["player_spawn"], self.bullet_cfg)
         self._player_c_v = self.ecs_world.component_for_entity(
