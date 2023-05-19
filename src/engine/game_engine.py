@@ -12,7 +12,7 @@ from utils import resource_path
 
 class GameEngine:
     def __init__(self) -> None:
-        with open(resource_path("assets/cfg/window.json", encoding="utf-8")) as window_file:
+        with open(resource_path("assets/cfg/window.json"), encoding="utf-8") as window_file:
             self._window_cfg = json.load(window_file)
 
         pygame.init()
