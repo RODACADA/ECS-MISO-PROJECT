@@ -6,7 +6,7 @@ from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.engine.service_locator import ServiceLocator
 from src.ecs.components.c_blink import CBlink
-
+from utils import resource_path
 
 class TextAlignment(Enum):
     LEFT = 0,
@@ -16,8 +16,8 @@ class TextAlignment(Enum):
 
 def create_text(world: esper.World, txt: str, size: int,
                 color: pygame.Color, pos: pygame.Vector2, alignment: TextAlignment) -> int:
-    font = ServiceLocator.fonts_service.get(
-        "assets/fnt/PressStart2P.ttf", size)
+    font = ServiceLocator.fonts_service.get(resource_path(
+        "assets/fnt/PressStart2P.ttf"), size)
     text_entity = world.create_entity()
 
     world.add_component(text_entity, CSurface.from_text(txt, font, color))
@@ -36,8 +36,8 @@ def create_text(world: esper.World, txt: str, size: int,
 
 
 def update_text(world: esper.World, entity: int, text: str, size: int, color):
-    font = ServiceLocator.fonts_service.get(
-        "assets/fnt/PressStart2P.ttf", size)
+    font = ServiceLocator.fonts_service.get(resource_path(
+        "assets/fnt/PressStart2P.ttf"), size)
 
     component = world.component_for_entity(entity, CSurface)
     component.surf = font.render(text, True, color)
@@ -48,7 +48,7 @@ def create_image(world: esper.World, img_path: str, pos: pygame.Vector2):
     image_entity = world.create_entity()
 
     # Carga la imagen desde el archivo
-    image_surface = pygame.image.load(img_path)
+    image_surface = pygame.image.load(resource_path(img_path))
 
     world.add_component(image_entity, CSurface.from_surface(image_surface))
     world.add_component(image_entity, CTransform(pos))
@@ -57,7 +57,7 @@ def create_image(world: esper.World, img_path: str, pos: pygame.Vector2):
 
 def create_life_counter(world: esper.World, life_config: dict, num_lives: int) -> int:
     image_path = life_config["image"]
-    image = pygame.image.load(image_path)  # Carga la imagen de la vida
+    image = pygame.image.load(resource_path(image_path))  # Carga la imagen de la vida
     pos = pygame.Vector2(life_config["pos"]["x"], life_config["pos"]["y"])
     
     life_entities = []
@@ -78,7 +78,7 @@ def create_life_counter(world: esper.World, life_config: dict, num_lives: int) -
     return life_entities
 
 def create_menus(world:esper.World) -> dict:
-    set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
+    set_interface = ServiceLocator.setting_service.get(resource_path("assets/cfg/interface.json"))
     rojo = pygame.Color(set_interface["title_text_color"]["r"],
                                 set_interface["title_text_color"]["g"],
                                 set_interface["title_text_color"]["b"])
@@ -105,7 +105,7 @@ def create_menus(world:esper.World) -> dict:
     }
 
 def create_logo(world:esper.World) -> int:
-    set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
+    set_interface = ServiceLocator.setting_service.get(resource_path("assets/cfg/interface.json"))
     screen = pygame.display.get_surface()  # superficie de la pantalla actual
     initial_y_pos = screen.get_height() + 50  # posición y inicial para el logo
     
@@ -119,7 +119,7 @@ def create_logo(world:esper.World) -> int:
 
 
 def create_blinking_text(world:esper.World, text:str, alignment:TextAlignment, blink_interval: float) -> int:
-    set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
+    set_interface = ServiceLocator.setting_service.get(resource_path("assets/cfg/interface.json"))
     rojo = pygame.Color(set_interface["title_text_color"]["r"],
                                 set_interface["title_text_color"]["g"],
                                 set_interface["title_text_color"]["b"])
@@ -129,9 +129,9 @@ def create_blinking_text(world:esper.World, text:str, alignment:TextAlignment, b
     return entity
 
 def create_level_flags(world: esper.World, num_flags: int) -> list:
-    set_interface = ServiceLocator.setting_service.get("assets/cfg/interface.json")
+    set_interface = ServiceLocator.setting_service.get(resource_path("assets/cfg/interface.json"))
     flag_image_path = set_interface["levels"]["image"]
-    flag_image = pygame.image.load(flag_image_path)
+    flag_image = pygame.image.load(resource_path(flag_image_path))
     pos = pygame.Vector2(set_interface["levels"]["pos"]["x"], set_interface["levels"]["pos"]["y"])
 
     flag_entities = []

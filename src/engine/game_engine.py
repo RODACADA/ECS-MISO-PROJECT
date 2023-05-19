@@ -7,11 +7,12 @@ from src.ecs.components.c_input_command import CInputCommand
 from src.engine.scenes.scene import Scene
 from src.game.menu_scene import MenuScene
 from src.game.play_scene import PlayScene
+from utils import resource_path
 
 
 class GameEngine:
     def __init__(self) -> None:
-        with open("assets/cfg/window.json", encoding="utf-8") as window_file:
+        with open(resource_path("assets/cfg/window.json", encoding="utf-8")) as window_file:
             self._window_cfg = json.load(window_file)
 
         pygame.init()
@@ -30,7 +31,7 @@ class GameEngine:
         self.is_running = False
         self._scenes: dict[str, Scene] = {}
         self._scenes["MENU_SCENE"] = MenuScene(self)
-        self._scenes["LEVEL_01"] = PlayScene("assets/cfg/level_01.json", self)
+        self._scenes["LEVEL_01"] = PlayScene(resource_path("assets/cfg/level_01.json"), self)
         # self._scenes["WIN_SCENE"] = WinScene(self)
         # self._scenes["GAME_OVER_SCENE"] = GameOverScene(self)
         self._current_scene: Scene = None
