@@ -55,13 +55,13 @@ def create_image(world: esper.World, img_path: str, pos: pygame.Vector2):
 
     return image_entity
 
-def create_life_counter(world: esper.World, life_config: dict, player_config: dict) -> int:
+def create_life_counter(world: esper.World, life_config: dict, num_lives: int) -> int:
     image_path = life_config["image"]
     image = pygame.image.load(image_path)  # Carga la imagen de la vida
     pos = pygame.Vector2(life_config["pos"]["x"], life_config["pos"]["y"])
     
     life_entities = []
-    for i in range(player_config["lives"]):
+    for i in range(num_lives):
         # Crear la entidad para cada vida
         life_entity = world.create_entity()
         

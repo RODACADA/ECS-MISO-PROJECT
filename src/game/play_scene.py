@@ -203,11 +203,9 @@ class PlayScene(Scene):
         create_background(self.ecs_world, self.bg_cfg, self.screen)
         life_config = ServiceLocator.setting_service.get(
             "assets/cfg/interface.json")["vidas"]
-        player_config = ServiceLocator.setting_service.get(
-            "assets/cfg/player.json")
+        # Dibuja el contador de vidas
         self.lives = create_life_counter(
-            self.ecs_world, life_config, player_config)
-        
+            self.ecs_world, life_config, self.indicators["remaining_lives"])
         
         # Crea la bandera del primer nivel
         self.flag_entities = create_level_flags(self.ecs_world, 1)
@@ -272,9 +270,9 @@ class PlayScene(Scene):
         system_background(self.ecs_world, delta_time, self.screen)
         system_blinking(self.ecs_world, delta_time)
         # Si el número de banderas es menor que el nivel actual, crea banderas adicionales
-        if len(self.flag_entities) <= self.indicators["curent_lvl"]:
-            new_flags = create_level_flags(self.ecs_world, self.indicators["curent_lvl"] - len(self.flag_entities))
-            self.flag_entities.extend(new_flags)
+        """ if len(self.flag_entities) < self.indicators["curent_lvl"]:
+            new_flags = create_level_flags(self.ecs_world, self.indicators["curent_lvl"])
+            self.flag_entities.extend(new_flags) """
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
@@ -343,17 +341,3 @@ class PlayScene(Scene):
         update_text(self.ecs_world, self.score_text, str(
             self.indicators["current_score"]), 8, self.normal_text_color)
 
-    # def do_draw(self, screen: pygame.Surface):
-    #    system_background(self.ecs_world, self.delta_time, screen)
-
-    """ def do_draw(self, screen):
-        # Dibuja las vidas restantes
-        for i, life in enumerate(self.lives[:self.indicators["remaining_lives"]]):
-            # Aquí puedes obtener la posición x para cada imagen de vida,
-            # dependiendo del valor de i y de cuánto espacio quieres dejar entre las imágenes
-            pos_x = i * 20  # Por ejemplo, dejamos 20 píxeles entre cada imagen
-
-            # Obtén la superficie de la vida
-            life_surf = self.ecs_world.component_for_entity(life, CSurface).surf
-
-            screen.blit(life_surf, (pos_x, 10))  # Dibuja la imagen de vida en la pantalla """
