@@ -2,7 +2,6 @@
 import esper
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
-from src.ecs.components.tags.c_tag_player import CTagPlayer
 
 
 def system_movement(world: esper.World, delta_time: float):

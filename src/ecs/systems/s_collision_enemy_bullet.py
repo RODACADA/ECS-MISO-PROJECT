@@ -2,11 +2,9 @@
 
 import esper
 
-from typing import List
 
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
-from src.ecs.components.c_enemy_hunter_state import CEnemyHunterState
 from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.tags.c_tag_bullet import CTagBullet

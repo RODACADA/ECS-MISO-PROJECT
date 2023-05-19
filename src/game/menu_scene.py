@@ -1,11 +1,8 @@
 import pygame
-import esper
-import json
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.systems.s_background import system_background
 from src.ecs.systems.s_blink import system_blinking
-from src.ecs.systems.s_rendering import system_rendering
 
 from src.engine.scenes.scene import Scene
 from src.create import prefab_creator_interface, prefab_creator
@@ -62,7 +59,6 @@ class MenuScene(Scene):
                 if entity_transform.pos.y < final_position.y:
                     entity_transform.pos.y = final_position.y
 
-        
     def do_draw(self, screen):
         for _, (star, surf, transform) in self.ecs_world.get_components(CBGStar, CSurface, CTransform):
             if surf.show:
@@ -72,7 +68,7 @@ class MenuScene(Scene):
             if not self.ecs_world.has_component(ent, CBGStar) and surf.show:
                 screen.blit(surf.surf, transform.pos)
 
-        pygame.display.flip()    
+        pygame.display.flip()
 
     def do_action(self, action: CInputCommand):
         if action.name == "START_GAME":
