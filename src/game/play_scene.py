@@ -40,32 +40,33 @@ from src.ecs.systems.s_background import system_background
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
 from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
 import src.engine.game_engine
+from utils import resource_path
 
 
 class PlayScene(Scene):
     def __init__(self, level_path: str, engine: 'src.engine.game_engine.GameEngine') -> None:
         super().__init__(engine)
-        with open("assets/cfg/window.json", encoding="utf-8") as window_file:
+        with open(resource_path("assets/cfg/window.json"), encoding="utf-8") as window_file:
             self.window_cfg = json.load(window_file)
-        with open("assets/cfg/enemies.json") as enemies_file:
+        with open(resource_path("assets/cfg/enemies.json")) as enemies_file:
             self.enemies_cfg = json.load(enemies_file)
         with open(level_path) as level_01_file:
             self.level_01_cfg = json.load(level_01_file)
-        with open("assets/cfg/player.json") as player_file:
+        with open(resource_path("assets/cfg/player.json")) as player_file:
             self.player_cfg = json.load(player_file)
-        with open("assets/cfg/bullet.json") as bullet_file:
+        with open(resource_path("assets/cfg/bullet.json")) as bullet_file:
             self.bullet_cfg = json.load(bullet_file)
-        with open("assets/cfg/interface.json") as interface_file:
+        with open(resource_path("assets/cfg/interface.json")) as interface_file:
             self.interface_cfg = json.load(interface_file)
-        with open("assets/cfg/background.json") as bg_file:
+        with open(resource_path("assets/cfg/background.json")) as bg_file:
             self.bg_cfg = json.load(bg_file)
-        with open("assets/cfg/enemy_bullet.json") as enemy_bullet_file:
+        with open(resource_path("assets/cfg/enemy_bullet.json")) as enemy_bullet_file:
             self.enemy_bullet_cfg = json.load(enemy_bullet_file)
-        with open("assets/cfg/enemy_explosion.json") as enemy_explosion_file:
+        with open(resource_path("assets/cfg/enemy_explosion.json")) as enemy_explosion_file:
             self.enemy_explosion_cfg = json.load(enemy_explosion_file)
-        with open("assets/cfg/player_explosion.json") as player_explosion_file:
+        with open(resource_path("assets/cfg/player_explosion.json")) as player_explosion_file:
             self.player_explosion_cfg = json.load(player_explosion_file)
-        with open("assets/cfg/enemies_sounds.json") as enemies_sounds_file:
+        with open(resource_path("assets/cfg/enemies_sounds.json")) as enemies_sounds_file:
             self.enemies_sounds_cfg = json.load(enemies_sounds_file)
 
         self.screen = pygame.display.set_mode(
