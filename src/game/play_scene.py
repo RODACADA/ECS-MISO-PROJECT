@@ -14,14 +14,13 @@ from src.ecs.systems.s_show_static_bullet import system_show_static_bullet
 from src.engine.scenes.scene import Scene
 from src.engine.service_locator import ServiceLocator
 from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, \
-    create_bullet, create_texts, create_background, create_flying_enemies
+    create_bullet, create_background, create_flying_enemies
 
 from src.create.prefab_creator_interface import TextAlignment, create_level_flags, create_life_counter, create_text, update_text
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
-from src.ecs.components.c_ability import CAbility
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
 from src.ecs.components.tags.c_tag_bullet_static import CTagBulletStatic
 
@@ -32,19 +31,14 @@ from src.ecs.systems.s_collision_enemy_bullet import system_collision_enemy_bull
 from src.ecs.systems.s_enemies_bullets import system_enemies_bullets
 from src.ecs.systems.s_enemies_fly import system_enemies_fly
 from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
-from src.ecs.systems.s_input_player import system_input_player
 from src.ecs.systems.s_movement import system_movement
 from src.ecs.systems.s_enemy_state import system_enemy_state
-from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
 from src.ecs.systems.s_background import system_background
 from src.ecs.systems.s_explosion_kill import system_explosion_kill
-from src.ecs.systems.s_enemy_hunter_state import system_enemy_hunter_state
 from src.ecs.systems.s_static_bullet_movement import system_static_bullet_movement
-from src.ecs.systems.s_update_cd_text import system_update_cd_text
-from src.ecs.systems.s_update_pause_texts import system_update_pause_texts
 import src.engine.game_engine
 
 
@@ -61,8 +55,6 @@ class PlayScene(Scene):
             self.player_cfg = json.load(player_file)
         with open("assets/cfg/bullet.json") as bullet_file:
             self.bullet_cfg = json.load(bullet_file)
-        # with open("assets/cfg/explosion.json") as explosion_file:
-        #     self.explosion_cfg = json.load(explosion_file)
         with open("assets/cfg/interface.json") as interface_file:
             self.interface_cfg = json.load(interface_file)
         with open("assets/cfg/background.json") as bg_file:
@@ -128,18 +120,18 @@ class PlayScene(Scene):
                                       self.normal_text_color, pygame.Vector2(
                                           70, 25),
                                       TextAlignment.RIGHT)
-        
+
         # Creación del contador de niveles
         lvl = "00" if self.indicators["curent_lvl"] == 0 else str(
-        self.indicators["curent_lvl"])
+            self.indicators["curent_lvl"])
         self.level_text = create_text(self.ecs_world, "0" + lvl, 8,
-                                      self.normal_text_color, pygame.Vector2(220, 24),TextAlignment.RIGHT)
+                                      self.normal_text_color, pygame.Vector2(220, 24), TextAlignment.RIGHT)
 
         create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(
-            self.interface_cfg["title_text_color"]["r"], 
-            self.interface_cfg["title_text_color"]["g"], 
+            self.interface_cfg["title_text_color"]["r"],
+            self.interface_cfg["title_text_color"]["g"],
             self.interface_cfg["title_text_color"]["b"]),
-                    pygame.Vector2(152, 15), TextAlignment.RIGHT)
+            pygame.Vector2(152, 15), TextAlignment.RIGHT)
 
         create_text(self.ecs_world, "HI-SCORE", 8,  pygame.Color(self.interface_cfg["title_text_color"]["r"], self.interface_cfg["title_text_color"]
                                                                  ["g"], self.interface_cfg["title_text_color"]["b"]),
@@ -206,12 +198,11 @@ class PlayScene(Scene):
         # Dibuja el contador de vidas
         self.lives = create_life_counter(
             self.ecs_world, life_config, self.indicators["remaining_lives"])
-        
+
         # Crea la bandera del primer nivel
         self.flag_entities = create_level_flags(self.ecs_world, 1)
 
         self.is_paused = False
-
 
     def do_update(self, delta_time: float):
         if self._next_lvl_cs.show and pygame.time.get_ticks() >= 2000 + self.finished_time:
@@ -269,10 +260,6 @@ class PlayScene(Scene):
 
         system_background(self.ecs_world, delta_time, self.screen)
         system_blinking(self.ecs_world, delta_time)
-        # Si el número de banderas es menor que el nivel actual, crea banderas adicionales
-        """ if len(self.flag_entities) < self.indicators["curent_lvl"]:
-            new_flags = create_level_flags(self.ecs_world, self.indicators["curent_lvl"])
-            self.flag_entities.extend(new_flags) """
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
@@ -340,4 +327,3 @@ class PlayScene(Scene):
 
         update_text(self.ecs_world, self.score_text, str(
             self.indicators["current_score"]), 8, self.normal_text_color)
-

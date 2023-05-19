@@ -1,8 +1,5 @@
 import random
-from typing import List
 import esper
-from src.ecs.components.c_transform import CTransform
-from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.c_fliying_enemies import CFlyingEnemies
 

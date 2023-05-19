@@ -16,7 +16,6 @@ def system_enemies_bullets(world: esper.World, lvl_config: dict, enemy_bullet_cf
     enemies = world.get_components(
         CTagEnemy, CEnemyState, CSurface, CTransform)
 
-    c_tag: CTagEnemy
     c_s: CEnemyState
     c_surf: CSurface
     c_t: CTransform

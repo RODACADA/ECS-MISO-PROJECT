@@ -1,7 +1,6 @@
 import pygame
 import esper
 
-from typing import List
 
 from src.ecs.components.c_animation import CAnimation, set_animation
 from src.ecs.components.c_enemy_state import CEnemyState, EnemyState
@@ -58,8 +57,8 @@ def _do_enemy_flying_return(c_st: CEnemyState, c_a: CAnimation, c_v: CVelocity,
             o_a = ec_a
             other = True
             break
-    
-    if other :
+
+    if other:
         new_pos = c_t.pos_0 - o_t.pos_0 + o_t.pos
     else:
         new_pos = c_t.pos_0
@@ -80,5 +79,3 @@ def _do_enemy_flying_return(c_st: CEnemyState, c_a: CAnimation, c_v: CVelocity,
         flying_enemies.flying_enemies_count -= 1
     else:
         c_v.vel = pygame.Vector2(pos_diff.normalize()*c_tag.vertical_velocity)
-
-

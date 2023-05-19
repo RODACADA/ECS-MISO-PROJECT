@@ -1,12 +1,10 @@
 import random
 import pygame
 import esper
-from src.ecs.components.c_ability import CAbility
 from src.ecs.components.c_blink import CBlink
 
 from src.ecs.components.c_enemy_spawner import CEnemySpawner
 from src.ecs.components.c_input_command import CInputCommand
-from src.ecs.components.c_power_def import CPowerDef
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
@@ -18,10 +16,8 @@ from src.ecs.components.tags.c_tag_bullet import CTagBullet
 from src.ecs.components.tags.c_tag_explosion import CTagExplosion
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_enemy_state import CEnemyState
-from src.ecs.components.c_enemy_hunter_state import CEnemyHunterState
 from src.ecs.components.c_bg_star_spawner import CBgStarSpawner
 from src.ecs.components.c_bg_start import CBGStar
-from src.ecs.components.tags.c_tag_text import CTagText
 from src.ecs.components.c_fliying_enemies import CFlyingEnemies
 from src.engine.service_locator import ServiceLocator
 
@@ -57,13 +53,7 @@ def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dic
         size = (size[0] / enemy_info["animations"]["number_frames"], size[1])
     pos = pygame.Vector2(pos.x - (size[0] / 2),
                          pos.y - (size[1] / 2))
-    # vel_max = enemy_info["velocity_max"]
-    # vel_min = enemy_info["velocity_min"]
-    # vel_range = random.randrange(vel_min, vel_max)
-    # velocity = pygame.Vector2(random.choice([-vel_range, vel_range]),
-    #                           random.choice([-vel_range, vel_range]))
 
-    # velocity = pygame.Vector2(0, 0)
     velocity = pygame.Vector2(enemy_info["velocity"], 0)
 
     enemy_entity = create_sprite(world, pos, velocity, enemy_sprite)
@@ -73,7 +63,6 @@ def create_enemy_square(world: esper.World, pos: pygame.Vector2, enemy_info: dic
     if "animations" in enemy_info:
         world.add_component(enemy_entity, CAnimation(enemy_info["animations"]))
     world.add_component(enemy_entity, CEnemyState())
-    # ServiceLocator.sounds_service.play(enemy_info["sound"])
 
 
 def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict, bullet_info: dict) -> int:
@@ -88,16 +77,6 @@ def create_player_square(world: esper.World, player_info: dict, player_lvl_info:
     create_bullet(world, pos, size, bullet_info, True)
 
     return player_entity
-
-
-# def create_enemy_hunter(world: esper.World, pos: pygame.Vector2, enemy_info: dict):
-#     enemy_surface = ServiceLocator.images_service.get(enemy_info["image"])
-#     velocity = pygame.Vector2(0, 0)
-#     enemy_entity = create_sprite(world, pos, velocity, enemy_surface)
-#     world.add_component(enemy_entity, CEnemyHunterState(pos))
-#     world.add_component(enemy_entity,
-#                         CAnimation(enemy_info["animations"]))
-    # world.add_component(enemy_entity, CTagEnemy("Hunter"))
 
 
 def create_enemy_spawner(world: esper.World, level_data: dict):
@@ -208,30 +187,6 @@ def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: di
                         CAnimation(explosion_info["animations"]))
     ServiceLocator.sounds_service.play(explosion_info["sound"])
     return explosion_entity
-
-
-def create_texts(world: esper.World, text_def: dict):
-    for text_item in text_def["texts"]:
-        text_entity = world.create_entity()
-        pos = pygame.Vector2(text_item["position"]
-                             ["x"], text_item["position"]["y"])
-        color = pygame.Color(text_item["color"]["r"],
-                             text_item["color"]["g"], text_item["color"]["b"])
-
-        font = ServiceLocator.fonts_service.get(
-            text_item["fnt"], text_item["size"])
-        text = font.render(text_item["text"], True, color)
-
-        world.add_component(text_entity, CTransform(pos))
-        world.add_component(text_entity, CSurface.from_text(text))
-
-        type = "STATIC" if text_item["isStatic"] else text_item["id"]
-
-        world.add_component(text_entity, CTagText(type))
-
-        if type == "power":
-            world.add_component(text_entity, CPowerDef(
-                pos, text_item["size"], color, text_item["fnt"]))
 
 
 def create_star(world: esper.World, spawner: CBgStarSpawner, screen: pygame.Surface, y=0):
